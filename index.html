@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle Financeiro</title>
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+    padding: 12px;
+}
+
+h1, h2 {
+    text-align: center;
+    color: #38bdf8;
+}
+
+h2 {
+    font-size: 20px;
+}
+
+h3 {
+    padding-left: 10px;
+    margin: 0;
+    margin-bottom: 15px;
+    color: #38bdf8;
+    font-size: 16px;
+}
+
+.container {
+    background: #020617;
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.section {
+    margin-bottom: 20px;
+    padding: 12px;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+}
+
+.salario-exibicao {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 15px;
+    border: 2px solid #38bdf8;
+    position: sticky;
+    top: 10px;
+    z-index: 100;
+}
+
+.salario-exibicao span {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #38bdf8;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 4px;
+    border-radius: 6px;
+    border: none;
+    font-size: 16px;
+}
+
+button {
+    background: #38bdf8;
+    color: #020617;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+button.secundario { background: #64748b; color: #fff; }
+button.excluir { background: #ef4444; color: #fff; }
+
+.botoes {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pago { color: #22c55e; font-weight: bold; }
+.nao { color: #ef4444; font-weight: bold; }
+.positivo { color: #22c55e; }
+.negativo { color: #ef4444; }
+
+table, tbody, tr, td { width: 100%; }
+
+tr {
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: block;
+}
+
+td {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+}
+
+td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #94a3b8;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+/* Ajuste para o valor do Tipo ficar igual ao Nome */
+.valor-tipo-estilizado {
+    color: #e5e7eb; /* Mesma cor do texto geral (como o nome Luz) */
+    text-transform: capitalize;
+}
+
+.resumo-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+}
+
+.resumo-card {
+    background: #020617;
+    border: 1px solid #1e293b;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.resumo-card.destaque {
+    border: 2px solid #38bdf8;
+}
+
+.resumo-linha {
+    display: grid;
+    grid-template-columns: 1fr 80px 35px 35px; 
+    align-items: center;
+    margin-top: 8px;
+    font-size: 14px;
+    gap: 12px;
+}
+
+.resumo-linha.total-grupo {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed #334155;
+}
+
+.resumo-linha span {
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.qtd-label {
+    color: #38bdf8;
+    font-size: 12px;
+    text-align: right;
+}
+
+/* SISTEMA DE MENSAGENS */
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+}
+
+.toast {
+    background: #1e293b;
+    color: #fff;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border-left: 6px solid #38bdf8;
+    margin-bottom: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+#confirm-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+}
+
+.confirm-box {
+    background: #020617;
+    border: 2px solid #38bdf8;
+    padding: 20px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 320px;
+    width: 90%;
+}
+
+.bloquinho-titulo {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #38bdf8;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 4px;
+    text-transform: uppercase;
+}
+</style>
+</head>
+
+<body>
+
+<div id="toast-container"></div>
+
+<div id="confirm-overlay">
+    <div class="confirm-box">
+        <h3 id="confirm-title">Confirmar</h3>
+        <p id="confirm-msg" style="margin-bottom: 20px;"></p>
+        <div class="botoes">
+            <button id="confirm-yes" class="excluir">Confirmar</button>
+            <button id="confirm-no" class="secundario">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<h1>📊 Controle Financeiro</h1>
+
+<div class="container">
+
+<div class="salario-exibicao">
+    💰 Salário registrado: <span id="displaySalario">R$ 0,00</span>
+    <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
+        <select id="selectMes">
+            <option value="" disabled selected>Mês</option>
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
+        </select>
+
+        <select id="selectAno">
+            <option value="" disabled selected>Ano</option>
+        </select>
+    </div>
+</div>
+
+<div class="section">
+<h2>💰 Configurar Salário</h2>
+<input type="text" id="salarioInput" placeholder="💲 Digite seu salário" oninput="mascaraMoeda(this)">
+<button onclick="definirSalario()">Salvar salário</button>
+</div>
+
+<div class="section">
+<h2>🧾 Despesas</h2>
+<input id="nomeDespesa" placeholder="📝 Nome da conta" maxlength="25" autocomplete="off">
+<input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)">
+
+<select id="tipoDespesa">
+    <option value="" disabled selected>📌 Tipo da despesa</option>
+    <option value="fixa">🧾 Fixa</option>
+    <option value="pontual">🧾 Pontual</option>
+</select>
+
+<label>📅 Data de vencimento</label>
+<input type="date" id="vencimentoDespesa">
+
+<select id="statusDespesa" onchange="atualizarCampoPagamento()">
+    <option value="" disabled selected>Status</option>
+    <option value="nao">❌ Não paga</option>
+    <option value="pago">✅ Pago</option>
+</select>
+
+<div id="campoPagamento" style="display:none">
+    <label>📅 Data de pagamento</label>
+    <input type="date" id="pagamentoDespesa">
+</div>
+
+<div class="botoes">
+    <button id="btnDespesa" onclick="salvarDespesa()">Salvar despesa</button>
+    <button id="btnNovaDespesa" class="secundario" onclick="novaDespesa()" style="display:none">Nova despesa</button>
+</div>
+
+<table><tbody id="listaDespesas"></tbody></table>
+</div>
+
+<div class="section">
+<h2 id="tituloInvest" >💎 Reservas | 📈 Investimentos</h2>
+<input id="nomeInv" placeholder="📝 Nome" maxlength="25" autocomplete="off">
+<input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)">
+
+<select id="tipoInv">
+    <option value="" disabled selected>📌 Tipo</option>
+    <option value="reserva">💎 Reserva</option>
+    <option value="investimento">📈 Investimento</option>
+</select>
+
+<label>📅 Data do aporte</label>
+<input type="date" id="dataInv">
+
+<div class="botoes">
+    <button id="btnInvest" onclick="salvarInvestimento()">Salvar</button>
+    <button id="btnNovoInvest" class="secundario" onclick="novoInvestimento()" style="display:none">Novo</button>
+</div>
+
+<table><tbody id="listaInvestimentos"></tbody></table>
+</div>
+
+<div class="section">
+<h2>📊 Resumo</h2>
+<div class="resumo-grid">
+    <div class="resumo-card">
+        <h3>🧾 Despesas</h3>
+        <div class="resumo-linha">
+            <span>✅ Pago</span>
+            <strong id="totalPago">R$ 0,00</strong>
+            <strong id="percPago">0%</strong>
+            <strong class="qtd-label" id="qtdPago">0</strong>
+        </div>
+        <div class="resumo-linha">
+            <span>❌ Pendente</span>
+            <strong id="totalPendente">R$ 0,00</strong>
+            <strong id="percPendente">0%</strong>
+            <strong class="qtd-label" id="qtdPendente">0</strong>
+        </div>
+        <div class="resumo-linha total-grupo">
+            <span>Soma Total</span>
+            <strong id="somaDespesasValor">R$ 0,00</strong>
+            <strong id="somaDespesasPerc">0%</strong>
+            <strong class="qtd-label" id="qtdTotalDespesas">0</strong>
+        </div>
+    </div>
+
+    <div class="resumo-card">
+        <h3>💎 Reservas | 📈 Investimentos</h3>
+        <div class="resumo-linha">
+            <span>💎 Reservas</span>
+            <strong id="totalReservas">R$ 0,00</strong>
+            <strong id="percReservas">0%</strong>
+            <strong class="qtd-label" id="qtdReservas">0</strong>
+        </div>
+        <div class="resumo-linha">
+            <span>📈 Investimentos</span>
+            <strong id="totalInvestido">R$ 0,00</strong>
+            <strong id="percInvestido">0%</strong>
+            <strong class="qtd-label" id="qtdInvestido">0</strong>
+        </div>
+        <div class="resumo-linha total-grupo">
+            <span>Soma Total</span>
+            <strong id="somaInvestValor">R$ 0,00</strong>
+            <strong id="somaInvestPerc">0%</strong>
+            <strong class="qtd-label" id="qtdTotalInvest">0</strong>
+        </div>
+    </div>
+
+    <div class="resumo-card destaque">
+        <h3>💵 Saldo</h3>
+        <div class="resumo-linha" style="grid-template-columns: 1fr 110px 65px;">
+            <span>Disponível</span>
+            <strong id="saldoFinal" class="positivo">R$ 0,00</strong>
+            <strong id="percLivre">0%</strong>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+
+<script>
+let salario = 0;
+let despesas = [];
+let investimentos = [];
+let editDespesa = null;
+let editInvest = null;
+
+function mascaraMoeda(i) {
+    let v = i.value.replace(/\D/g,'');
+    v = (v/100).toFixed(2) + '';
+    v = v.replace(".", ",");
+    v = v.replace(/(\d)(\d{3})(\d{3}),/g, "$1.$2.$3,");
+    v = v.replace(/(\d)(\d{3}),/g, "$1.$2,");
+    i.value = v;
+}
+
+const parseBRL = (v) => {
+    if (!v) return 0;
+    return Number(v.replace(/\./g, '').replace(',', '.'));
+};
+
+const selectAno = document.getElementById("selectAno");
+const anoAtual = new Date().getFullYear();
+for(let i = anoAtual; i <= anoAtual + 20; i++){
+    const option = document.createElement("option");
+    option.value = i;
+    option.text = i;
+    selectAno.appendChild(option);
+}
+    
+const real = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+
+function avisar(msg, cor = "#38bdf8") {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.style.borderLeftColor = cor;
+    toast.innerText = msg;
+    container.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=>toast.remove(), 500); }, 3000);
+}
+
+function perguntar(msg, acao) {
+    const overlay = document.getElementById('confirm-overlay');
+    document.getElementById('confirm-msg').innerText = msg;
+    overlay.style.display = 'flex';
+    document.getElementById('confirm-yes').onclick = () => { acao(); overlay.style.display = 'none'; };
+    document.getElementById('confirm-no').onclick = () => { overlay.style.display = 'none'; };
+}
+
+function formatarDataBR(data){
+    if(!data) return "-";
+    const [a,m,d] = data.split("-");
+    return `${d}/${m}/${a}`;
+}
+
+function calcularPercentual(valor){
+    if (salario <= 0) return "0%";
+    if (valor >= salario) return "100%"; 
+    return ((valor / salario) * 100).toFixed(2) + "%";
+}
+
+function definirSalario(){
+    const novoSalario = parseBRL(salarioInput.value);
+    if (novoSalario <= 0) { avisar("⚠️ Informe um salário válido.", "#ef4444"); return; }
+    salario = novoSalario;
+    salarioInput.value = "";
+    atualizarTudo();
+    avisar("💰 Salário salvo!", "#22c55e");
+}
+
+function atualizarCampoPagamento(){
+    campoPagamento.style.display = statusDespesa.value === "pago" ? "block" : "none";
+}
+
+function salvarDespesa(){
+    const d = {
+        nome: nomeDespesa.value,
+        valor: parseBRL(valorDespesa.value),
+        tipo: tipoDespesa.value,
+        venc: vencimentoDespesa.value,
+        pag: statusDespesa.value === "pago" ? pagamentoDespesa.value : "",
+        status: statusDespesa.value
+    };
+    if(!d.nome || d.valor <= 0 || !d.tipo || !d.status){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
+
+    if (editDespesa === null) {
+        despesas.push(d);
+        avisar("✅ Despesa salva!", "#22c55e");
+    } else {
+        despesas[editDespesa] = d;
+        avisar("✅ Despesa atualizada!", "#38bdf8");
+    }
+    novaDespesa();
+    atualizarTudo();
+}
+
+function editarDespesa(i){
+    const d = despesas[i];
+    nomeDespesa.value = d.nome; 
+    valorDespesa.value = d.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}); 
+    tipoDespesa.value = d.tipo;
+    vencimentoDespesa.value = d.venc; statusDespesa.value = d.status; pagamentoDespesa.value = d.pag;
+    atualizarCampoPagamento();
+    editDespesa = i;
+    btnDespesa.innerText = "Atualizar despesa";
+    btnNovaDespesa.style.display = "block";
+    document.querySelector(".section:nth-of-type(2)").scrollIntoView({ behavior: "smooth" });
+}
+
+function excluirDespesa(i){
+    const nome = despesas[i].nome;
+    perguntar(`Remover "${nome}"?`, () => {
+        despesas.splice(i,1);
+        atualizarTudo();
+        avisar("🗑️ Removida!", "#ef4444");
+    });
+}
+
+function novaDespesa(){
+    editDespesa = null;
+    nomeDespesa.value = ""; valorDespesa.value = ""; tipoDespesa.value = "";
+    vencimentoDespesa.value = ""; pagamentoDespesa.value = ""; statusDespesa.value = "";
+    campoPagamento.style.display = "none";
+    btnDespesa.innerText = "Salvar despesa";
+    btnNovaDespesa.style.display = "none";
+}
+
+function salvarInvestimento(){
+    const i = {
+        nome: nomeInv.value,
+        valor: parseBRL(valorInv.value),
+        tipo: tipoInv.value,
+        data: dataInv.value
+    };
+    if(!i.nome || i.valor <= 0 || !i.tipo || !i.data){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
+
+    if (editInvest === null) {
+        investimentos.push(i);
+        avisar("✅ Adicionado!", "#22c55e");
+    } else {
+        investimentos[editInvest] = i;
+        avisar("✅ Atualizado!", "#38bdf8");
+    }
+    novoInvestimento();
+    atualizarTudo();
+}
+
+function editarInvestimento(i){
+    const v = investimentos[i];
+    nomeInv.value = v.nome; 
+    valorInv.value = v.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    tipoInv.value = v.tipo; 
+    dataInv.value = v.data;
+    editInvest = i;
+    btnInvest.innerText = "Atualizar";
+    btnNovoInvest.style.display = "block";
+    document.getElementById("tituloInvest").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function excluirInvestimento(i){
+    const nome = investimentos[i].nome;
+    perguntar(`Remover "${nome}"?`, () => {
+        investimentos.splice(i,1);
+        atualizarTudo();
+        avisar("🗑️ Removido!", "#ef4444");
+    });
+}
+
+function novoInvestimento(){
+    editInvest = null;
+    nomeInv.value = ""; valorInv.value = ""; tipoInv.value = ""; dataInv.value = "";
+    btnInvest.innerText = "Salvar";
+    btnNovoInvest.style.display = "none";
+}
+
+// ATUALIZAÇÃO: Emojis adicionados e estilo do Tipo corrigido
+function listarDespesas(){
+    listaDespesas.innerHTML = despesas.map((d,i)=>`
+        <tr>
+            <td data-label="Nome">📝 ${d.nome}</td>
+            <td data-label="Valor">💲 ${real(d.valor)}</td>
+            <td data-label="%">󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥${calcularPercentual(d.valor)}</td>
+            <td data-label="Tipo"><span class="valor-tipo-estilizado">📌 ${d.tipo}</span></td>
+            <td data-label="Venc.">📅 ${formatarDataBR(d.venc)}</td>
+            <td data-label="Pag.">📅 ${formatarDataBR(d.pag)}</td>
+            <td data-label="Status" class="${d.status}">${d.status === "pago" ? "✅ Pago" : "❌ Não paga"}</td>
+            <td class="acoes"><button onclick="editarDespesa(${i})">Editar</button><button class="excluir" onclick="excluirDespesa(${i})">Excluir</button></td>
+        </tr>`).join('');
+}
+
+function listarInvestimentos(){
+    listaInvestimentos.innerHTML = investimentos.map((i,idx)=>`
+        <tr>
+            <td data-label="Nome">📝 ${i.nome}</td>
+            <td data-label="Valor">💲 ${real(i.valor)}</td>
+            <td data-label="%">󠀥${calcularPercentual(i.valor)}</td>
+            <td data-label="Tipo">${i.tipo === "reserva" ? "💎 Reserva" : "📈 Investimento"}</td>
+            <td data-label="Data">📅 ${formatarDataBR(i.data)}</td>
+            <td class="acoes"><button onclick="editarInvestimento(${idx})">Editar</button><button class="excluir" onclick="excluirInvestimento(${idx})">Excluir</button></td>
+        </tr>`).join('');
+}
+
+function atualizarResumo(){
+    const dPagos = despesas.filter(d => d.status === "pago");
+    const dPendentes = despesas.filter(d => d.status === "nao");
+    const valorPago = dPagos.reduce((s, d) => s + d.valor, 0);
+    const valorPendente = dPendentes.reduce((s, d) => s + d.valor, 0);
+    const valorTotalDesp = valorPago + valorPendente;
+
+    const iReservas = investimentos.filter(i => i.tipo === "reserva");
+    const iInvest = investimentos.filter(i => i.tipo === "investimento");
+    const valorReservas = iReservas.reduce((s, i) => s + i.valor, 0);
+    const valorInvest = iInvest.reduce((s, i) => s + i.valor, 0);
+    const valorTotalInv = valorReservas + valorInvest;
+
+    const saldo = salario - valorPago - valorReservas - valorInvest;
+
+    document.getElementById("totalPago").innerText = real(valorPago);
+    document.getElementById("percPago").innerText = calcularPercentual(valorPago);
+    document.getElementById("qtdPago").innerText = dPagos.length;
+
+    document.getElementById("totalPendente").innerText = real(valorPendente);
+    document.getElementById("percPendente").innerText = calcularPercentual(valorPendente);
+    document.getElementById("qtdPendente").innerText = dPendentes.length;
+
+    document.getElementById("somaDespesasValor").innerText = real(valorTotalDesp);
+    document.getElementById("somaDespesasPerc").innerText = calcularPercentual(valorTotalDesp);
+    document.getElementById("qtdTotalDespesas").innerText = despesas.length;
+
+    document.getElementById("totalReservas").innerText = real(valorReservas);
+    document.getElementById("percReservas").innerText = calcularPercentual(valorReservas);
+    document.getElementById("qtdReservas").innerText = iReservas.length;
+
+    document.getElementById("totalInvestido").innerText = real(valorInvest);
+    document.getElementById("percInvestido").innerText = calcularPercentual(valorInvest);
+    document.getElementById("qtdInvestido").innerText = iInvest.length;
+
+    document.getElementById("somaInvestValor").innerText = real(valorTotalInv);
+    document.getElementById("somaInvestPerc").innerText = calcularPercentual(valorTotalInv);
+    document.getElementById("qtdTotalInvest").innerText = investimentos.length;
+
+    displaySalario.innerText = real(salario);
+    saldoFinal.innerText = real(saldo);
+    saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
+    
+    let percLivreValor = (salario > 0 && saldo > 0) ? (saldo / salario) * 100 : 0;
+    if (percLivreValor > 100) percLivreValor = 100;
+    percLivre.innerText = percLivreValor.toFixed(2) + "%";
+}
+
+function atualizarTudo(){ listarDespesas(); listarInvestimentos(); atualizarResumo(); }
+
+/* ================= BLOQUINHOS INFORMATIVOS ================= */
+const criarBloquinho = () => {
+    const el = document.createElement("div");
+    el.style.cssText = "position:absolute; background:#1e293b; border:2px solid #38bdf8; border-radius:8px; padding:10px; z-index:9999; display:none; max-height:200px; overflow-y:auto; width:300px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);";
+    document.body.appendChild(el);
+    return el;
+};
+
+const bDesp = criarBloquinho();
+const bInv = criarBloquinho();
+
+nomeDespesa.addEventListener("focus", () => {
+    let html = "<span class='bloquinho-titulo'>contas já cadastradas:</span>";
+    if (despesas.length === 0) {
+        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma conta registrada</div>";
+    } else {
+        html += despesas.map(d => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${d.nome}</span><span style='color:#38bdf8'>${real(d.valor)}</span></div>`).join('');
+    }
+    bDesp.innerHTML = html;
+    const r = nomeDespesa.getBoundingClientRect();
+    bDesp.style.top = r.bottom + window.scrollY + 5 + "px"; bDesp.style.left = r.left + window.scrollX + "px"; bDesp.style.display = "block";
+});
+nomeDespesa.addEventListener("blur", () => setTimeout(() => bDesp.style.display = "none", 200));
+
+nomeInv.addEventListener("focus", () => {
+    let html = "<span class='bloquinho-titulo'>reservas e investimentos já cadastrados:</span>";
+    if (investimentos.length === 0) {
+        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma reserva registrada</div>";
+    } else {
+        html += investimentos.map(i => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${i.nome}</span><span style='color:#38bdf8'>${real(i.valor)}</span></div>`).join('');
+    }
+    bInv.innerHTML = html;
+    const r = nomeInv.getBoundingClientRect();
+    bInv.style.top = r.bottom + window.scrollY + 5 + "px"; bInv.style.left = r.left + window.scrollX + "px"; bInv.style.display = "block";
+});
+nomeInv.addEventListener("blur", () => setTimeout(() => bInv.style.display = "none", 200));
+</script>
+</body>
+</html>
