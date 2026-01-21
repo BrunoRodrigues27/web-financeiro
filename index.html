@@ -154,7 +154,7 @@ td::before {
 
 .resumo-linha {
     display: grid;
-    grid-template-columns: 1fr 80px 35px 35px; 
+    grid-template-columns: 1fr 90px 35px 15px; 
     align-items: center;
     margin-top: 8px;
     font-size: 14px;
@@ -284,14 +284,14 @@ td::before {
 
 <div class="section">
 <h2>💰 Configurar Salário</h2>
-<input type="text" id="salarioInput" placeholder="💲 Digite seu salário" oninput="mascaraMoeda(this)">
+<input type="text" id="salarioInput" placeholder="💲 Digite seu salário" oninput="mascaraMoeda(this)" maxlength="12">
 <button onclick="definirSalario()">Salvar salário</button>
 </div>
 
 <div class="section">
 <h2>🧾 Despesas</h2>
-<input id="nomeDespesa" placeholder="📝 Nome da conta" maxlength="25" autocomplete="off">
-<input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)">
+<input id="nomeDespesa" placeholder="📝 Nome da conta" maxlength="40" autocomplete="off">
+<input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)" maxlength="9">
 
 <select id="tipoDespesa">
     <option value="" disabled selected>📌 Tipo da despesa</option>
@@ -304,7 +304,7 @@ td::before {
 
 <select id="statusDespesa" onchange="atualizarCampoPagamento()">
     <option value="" disabled selected>Status</option>
-    <option value="nao">❌ Não paga</option>
+    <option value="nao">❌ Não pago</option>
     <option value="pago">✅ Pago</option>
 </select>
 
@@ -323,8 +323,8 @@ td::before {
 
 <div class="section">
 <h2 id="tituloInvest" >💎 Reservas | 📈 Investimentos</h2>
-<input id="nomeInv" placeholder="📝 Nome" maxlength="25" autocomplete="off">
-<input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)">
+<input id="nomeInv" placeholder="📝 Nome" maxlength="40" autocomplete="off">
+<input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)" maxlength="9">
 
 <select id="tipoInv">
     <option value="" disabled selected>📌 Tipo</option>
@@ -355,7 +355,7 @@ td::before {
             <strong class="qtd-label" id="qtdPago">0</strong>
         </div>
         <div class="resumo-linha">
-            <span>❌ Pendente</span>
+            <span>❌ Não pago</span>
             <strong id="totalPendente">R$ 0,00</strong>
             <strong id="percPendente">0%</strong>
             <strong class="qtd-label" id="qtdPendente">0</strong>
@@ -579,19 +579,28 @@ function novoInvestimento(){
 }
 
 // ATUALIZAÇÃO: Emojis adicionados e estilo do Tipo corrigido
-function listarDespesas(){
-    listaDespesas.innerHTML = despesas.map((d,i)=>`
+function listarDespesas() {
+    listaDespesas.innerHTML = despesas.map((d, i) => `
         <tr>
             <td data-label="Nome">📝 ${d.nome}</td>
             <td data-label="Valor">💲 ${real(d.valor)}</td>
-            <td data-label="%">󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥${calcularPercentual(d.valor)}</td>
-            <td data-label="Tipo"><span class="valor-tipo-estilizado">🧾 ${d.tipo}</span></td>
+            <td data-label="%">${calcularPercentual(d.valor)}</td>
+            <td data-label="Tipo">
+                <span class="valor-tipo-estilizado">🧾 ${d.tipo}</span>
+            </td>
             <td data-label="Venc.">📅 ${formatarDataBR(d.venc)}</td>
             <td data-label="Pag.">📅 ${formatarDataBR(d.pag)}</td>
-            <td data-label="Status" class="${d.status}">${d.status === "pago" ? "✅ Pago" : "❌ Não paga"}</td>
-            <td class="acoes"><button onclick="editarDespesa(${i})">Editar</button><button class="excluir" onclick="excluirDespesa(${i})">Excluir</button></td>
-        </tr>`).join('');
+            <td data-label="Status" class="${d.status}">
+                ${d.status === "pago" ? "✅ Pago" : "❌ Não pago"}
+            </td>
+            <td class="acoes">
+                <button onclick="editarDespesa(${i})">Editar</button>
+                <button class="excluir" onclick="excluirDespesa(${i})">Excluir</button>
+            </td>
+        </tr>
+    `).join('');
 }
+
 
 function listarInvestimentos(){
     listaInvestimentos.innerHTML = investimentos.map((i,idx)=>`
