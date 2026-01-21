@@ -275,9 +275,10 @@ td::before {
             <option value="12">Dezembro</option>
         </select>
 
-        <select id="selectAno">
+        <select id="selectAno" style="width: 100px;">
             <option value="" disabled selected>Ano</option>
         </select>
+        <button class="excluir" onclick="zerarTudo()" style="width: 200px;">🧹 Zerar</button>
     </div>
 </div>
 
@@ -731,6 +732,22 @@ carregarDados();
 
 selectMes.addEventListener("change", salvarDados);
 selectAno.addEventListener("change", salvarDados);
+
+function zerarTudo() {
+    perguntar("⚠️ Isso vai apagar TODOS os dados salvos. Deseja continuar?", () => {
+        salario = 0;
+        despesas = [];
+        investimentos = [];
+
+        selectMes.value = "";
+        selectAno.value = "";
+
+        localStorage.removeItem("controleFinanceiro");
+
+        atualizarTudo();
+        avisar("🧹 Tudo foi zerado com sucesso!", "#ef4444");
+    });
+}
 </script>
 </body>
 </html>
