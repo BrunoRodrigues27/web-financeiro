@@ -652,8 +652,12 @@ function atualizarResumo(){
     percLivre.innerText = percLivreValor.toFixed(2) + "%";
 }
 
-function atualizarTudo(){ listarDespesas(); listarInvestimentos(); atualizarResumo(); }
-
+function atualizarTudo(){
+    listarDespesas();
+    listarInvestimentos();
+    atualizarResumo();
+    salvarDados();
+}
 /* ================= BLOQUINHOS INFORMATIVOS ================= */
 const criarBloquinho = () => {
     const el = document.createElement("div");
@@ -690,6 +694,43 @@ nomeInv.addEventListener("focus", () => {
     bInv.style.top = r.bottom + window.scrollY + 5 + "px"; bInv.style.left = r.left + window.scrollX + "px"; bInv.style.display = "block";
 });
 nomeInv.addEventListener("blur", () => setTimeout(() => bInv.style.display = "none", 200));
+
+function salvarDados() {
+    const dados = {
+        salario,
+        despesas,
+        investimentos,
+        mesSelecionado: selectMes.value,
+        anoSelecionado: selectAno.value
+    };
+    localStorage.setItem("controleFinanceiro", JSON.stringify(dados));
+}
+
+function carregarDados() {
+    const salvo = localStorage.getItem("controleFinanceiro");
+    if (!salvo) return;
+
+    const dados = JSON.parse(salvo);
+
+    salario = dados.salario || 0;
+    despesas = dados.despesas || [];
+    investimentos = dados.investimentos || [];
+
+    if (dados.mesSelecionado) {
+        selectMes.value = dados.mesSelecionado;
+    }
+
+    if (dados.anoSelecionado) {
+        selectAno.value = dados.anoSelecionado;
+    }
+
+    atualizarTudo();
+}
+
+carregarDados();
+
+selectMes.addEventListener("change", salvarDados);
+selectAno.addEventListener("change", salvarDados);
 </script>
 </body>
 </html>
