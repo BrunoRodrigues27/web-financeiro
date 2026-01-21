@@ -89,7 +89,6 @@ button {
 
 button.secundario { background: #64748b; color: #fff; }
 button.excluir { background: #ef4444; color: #fff; }
-button.editar { background: #38bdf8; color: #020617; }
 
 .botoes {
     display: flex;
@@ -102,55 +101,50 @@ button.editar { background: #38bdf8; color: #020617; }
 .positivo { color: #22c55e; }
 .negativo { color: #ef4444; }
 
-/* --- NOVO ESTILO DOS CARDS DE ITENS (IMAGEM 2) --- */
-.lista-container {
-    margin-top: 15px;
-}
+table, tbody, tr, td { width: 100%; }
 
-.item-card {
-    background: #0f172a;
+tr {
     border: 1px solid #1e293b;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 15px;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: block;
 }
 
-.item-linha {
+td {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 8px;
-    font-size: 15px;
+    padding: 6px 0;
 }
 
-.item-label {
+td::before {
+    content: attr(data-label);
+    font-weight: bold;
     color: #94a3b8;
-    font-weight: bold;
 }
 
-.item-valor-foco {
-    font-weight: bold;
+.acoes {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.valor-tipo-estilizado {
     color: #e5e7eb;
+    text-transform: capitalize;
 }
 
-.acoes-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-/* --- ESTILO RESUMO (IMAGEM 1) --- */
 .resumo-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 15px;
+    gap: 10px;
 }
 
 .resumo-card {
     background: #020617;
     border: 1px solid #1e293b;
-    border-radius: 12px;
-    padding: 15px;
+    border-radius: 8px;
+    padding: 12px;
 }
 
 .resumo-card.destaque {
@@ -158,49 +152,45 @@ button.editar { background: #38bdf8; color: #020617; }
     position: relative;
 }
 
+/* STATUS COLADO NO TOPO DIREITO */
+#status-humor {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
 .resumo-linha {
     display: grid;
-    grid-template-columns: 1fr 100px 65px 20px;
+    grid-template-columns: 1fr 80px 55px 15px; 
     align-items: center;
-    margin-bottom: 10px;
-    font-size: 15px;
-    gap: 8px;
+    margin-top: 8px;
+    font-size: 14px;
+    gap: 12px;
+}
+
+.resumo-linha.total-grupo {
+    margin-top: 12px;
+    padding-top: 8px;
+    border-top: 1px dashed #334155;
 }
 
 .resumo-linha span {
-    color: #e5e7eb;
+    color: #94a3b8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.resumo-linha strong {
+.qtd-label {
+    color: #38bdf8;
+    font-size: 12px;
     text-align: right;
 }
 
-.resumo-linha .perc-valor {
-    color: #94a3b8;
-    font-weight: normal;
-}
-
-.resumo-linha .qtd-valor {
-    color: #38bdf8;
-    font-weight: bold;
-}
-
-.linha-tracejada {
-    border-top: 1px dashed #334155;
-    margin: 10px 0;
-}
-
-.total-label {
-    color: #94a3b8 !important;
-}
-
-#status-humor {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    font-size: 18px;
-}
-
+/* SISTEMA DE MENSAGENS */
 #toast-container {
     position: fixed;
     top: 20px;
@@ -244,10 +234,16 @@ button.editar { background: #38bdf8; color: #020617; }
     width: 90%;
 }
 
-.status-vermelho { color: #ef4444; font-weight: bold; margin-right: 5px; }
-.status-amarelo { color: #fbbf24; font-weight: bold; margin-right: 5px; }
-.status-verde { color: #22c55e; font-weight: bold; margin-right: 5px; }
-
+.bloquinho-titulo {
+    display: block;
+    font-size: 12px;
+    font-weight: bold;
+    color: #38bdf8;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 4px;
+    text-transform: uppercase;
+}
 </style>
 </head>
 
@@ -275,189 +271,154 @@ button.editar { background: #38bdf8; color: #020617; }
     <div style="margin-top: 10px; display: flex; gap: 10px; justify-content: center;">
         <select id="selectMes">
             <option value="" disabled selected>Mês</option>
-            <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-            <option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option>
-            <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-            <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+            <option value="1">Janeiro</option>
+            <option value="2">Fevereiro</option>
+            <option value="3">Março</option>
+            <option value="4">Abril</option>
+            <option value="5">Maio</option>
+            <option value="6">Junho</option>
+            <option value="7">Julho</option>
+            <option value="8">Agosto</option>
+            <option value="9">Setembro</option>
+            <option value="10">Outubro</option>
+            <option value="11">Novembro</option>
+            <option value="12">Dezembro</option>
         </select>
+
         <select id="selectAno" style="width: 100px;">
             <option value="" disabled selected>Ano</option>
         </select>
-        <button class="excluir" onclick="zerarTudo()" style="width: 150px;">🧹 Zerar</button>
+        <button class="excluir" onclick="zerarTudo()" style="width: 200px;">🧹 Zerar</button>
     </div>
 </div>
 
 <div class="section">
-    <h2>💰 Configurar Salário</h2>
-    <input type="text" id="salarioInput" placeholder="💲 Digite seu salário" oninput="mascaraMoeda(this)" maxlength="12">
-    <button onclick="definirSalario()">Salvar salário</button>
+<h2>💰 Configurar Salário</h2>
+<input type="text" id="salarioInput" placeholder="💲 Digite seu salário" oninput="mascaraMoeda(this)" maxlength="12">
+<button onclick="definirSalario()">Salvar salário</button>
 </div>
 
 <div class="section">
-    <h2>🧾 Despesas</h2>
-    <input id="nomeDespesa" placeholder="📝 Nome da conta" maxlength="40">
-    <input id="valorDespesa" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)">
-    <select id="tipoDespesa">
-        <option value="" disabled selected>📌 Tipo</option>
-        <option value="fixa">🧾 Fixa</option>
-        <option value="pontual">🧾 Pontual</option>
-    </select>
-    <label>📅 Vencimento</label>
-    <input type="date" id="vencimentoDespesa">
-    <select id="statusDespesa" onchange="atualizarCampoPagamento()">
-        <option value="" disabled selected>Status</option>
-        <option value="nao">❌ Não pago</option>
-        <option value="pago">✅ Pago</option>
-    </select>
-    <div id="campoPagamento" style="display:none">
-        <label>📅 Pagamento</label>
-        <input type="date" id="pagamentoDespesa">
-    </div>
-    <div class="botoes">
-        <button id="btnDespesa" onclick="salvarDespesa()">Salvar despesa</button>
-        <button id="btnNovaDespesa" class="secundario" onclick="novaDespesa()" style="display:none">Nova despesa</button>
-    </div>
-    <div id="listaDespesas" class="lista-container"></div>
+<h2>🧾 Despesas</h2>
+<input id="nomeDespesa" placeholder="📝 Nome da conta" maxlength="40" autocomplete="off">
+<input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)" maxlength="9">
+
+<select id="tipoDespesa">
+    <option value="" disabled selected>📌 Tipo da despesa</option>
+    <option value="fixa">🧾 Fixa</option>
+    <option value="pontual">🧾 Pontual</option>
+</select>
+
+<label>📅 Data de vencimento</label>
+<input type="date" id="vencimentoDespesa">
+
+<select id="statusDespesa" onchange="atualizarCampoPagamento()">
+    <option value="" disabled selected>Status</option>
+    <option value="nao">❌ Não pago</option>
+    <option value="pago">✅ Pago</option>
+</select>
+
+<div id="campoPagamento" style="display:none">
+    <label>📅 Data de pagamento</label>
+    <input type="date" id="pagamentoDespesa">
+</div>
+
+<div class="botoes">
+    <button id="btnDespesa" onclick="salvarDespesa()">Salvar despesa</button>
+    <button id="btnNovaDespesa" class="secundario" onclick="novaDespesa()" style="display:none">Nova despesa</button>
+</div>
+
+<table><tbody id="listaDespesas"></tbody></table>
 </div>
 
 <div class="section">
-    <h2>🎡 Lazer</h2>
-    <input id="nomeLazer" placeholder="📝 Descrição do lazer" maxlength="40">
-    <input id="valorLazer" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)">
-    <label>📅 Data</label>
-    <input type="date" id="dataLazer">
-    <div class="botoes">
-        <button id="btnLazer" onclick="salvarLazer()">Salvar lazer</button>
-        <button id="btnNovoLazer" class="secundario" onclick="novoLazer()" style="display:none">Novo lazer</button>
-    </div>
-    <div id="listaLazer" class="lista-container"></div>
+<h2 id="tituloInvest" >💎 Reservas | 📈 Investimentos</h2>
+<input id="nomeInv" placeholder="📝 Nome" maxlength="40" autocomplete="off">
+<input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)" maxlength="9">
+
+<select id="tipoInv">
+    <option value="" disabled selected>📌 Tipo</option>
+    <option value="reserva">💎 Reserva</option>
+    <option value="investimento">📈 Investimento</option>
+</select>
+
+<label>📅 Data do aporte</label>
+<input type="date" id="dataInv">
+
+<div class="botoes">
+    <button id="btnInvest" onclick="salvarInvestimento()">Salvar reserva ou investimento</button>
+    <button id="btnNovoInvest" class="secundario" onclick="novoInvestimento()" style="display:none">Novo</button>
+</div>
+
+<table><tbody id="listaInvestimentos"></tbody></table>
 </div>
 
 <div class="section">
-    <h2>🎯 Metas</h2>
-    <input id="nomeMeta" placeholder="📝 Nome da meta" maxlength="40">
-    <input id="valorMeta" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)">
-    <label>📅 Data</label>
-    <input type="date" id="dataMeta">
-    <div class="botoes">
-        <button id="btnMeta" onclick="salvarMeta()">Salvar meta</button>
-        <button id="btnNovaMeta" class="secundario" onclick="novaMeta()" style="display:none">Nova meta</button>
-    </div>
-    <div id="listaMetas" class="lista-container"></div>
-</div>
-
-<div class="section">
-    <h2>💎 Reservas | 📈 Investimentos</h2>
-    <input id="nomeInv" placeholder="📝 Nome" maxlength="40">
-    <input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)">
-    <select id="tipoInv">
-        <option value="" disabled selected>📌 Tipo</option>
-        <option value="reserva">💎 Reserva</option>
-        <option value="emergencia">🆘 Reserva de Emergência</option>
-        <option value="investimento">📈 Investimento</option>
-    </select>
-    <label>📅 Data</label>
-    <input type="date" id="dataInv">
-    <div class="botoes">
-        <button id="btnInvest" onclick="salvarInvestimento()">Salvar aporte</button>
-        <button id="btnNovoInvest" class="secundario" onclick="novoInvestimento()" style="display:none">Novo aporte</button>
-    </div>
-    <div id="listaInvestimentos" class="lista-container"></div>
-</div>
-
-<div class="section">
-    <h2>📊 Resumo</h2>
-    <div class="resumo-grid">
-        
-        <div class="resumo-card">
-            <h3>🧾 Despesas</h3>
-            <div class="resumo-linha">
-                <span>✅ Pago</span>
-                <strong id="totalPago">R$ 0,00</strong>
-                <strong class="perc-valor" id="percPago">0%</strong>
-                <strong class="qtd-valor" id="qtdPago">0</strong>
-            </div>
-            <div class="resumo-linha">
-                <span>❌ Não pago</span>
-                <strong id="totalPendente">R$ 0,00</strong>
-                <strong class="perc-valor" id="percPendente">0%</strong>
-                <strong class="qtd-valor" id="qtdPendente">0</strong>
-            </div>
-            <div class="linha-tracejada"></div>
-            <div class="resumo-linha">
-                <span class="total-label">Soma Total</span>
-                <strong id="somaDespesasValor">R$ 0,00</strong>
-                <strong class="perc-valor" id="somaDespesasPerc">0%</strong>
-                <strong class="qtd-valor" id="qtdTotalDespesas">0</strong>
-            </div>
+<h2>📊 Resumo</h2>
+<div class="resumo-grid">
+    <div class="resumo-card">
+        <h3>🧾 Despesas</h3>
+        <div class="resumo-linha">
+            <span>✅ Pago</span>
+            <strong id="totalPago">R$ 0,00</strong>
+            <strong id="percPago">0%</strong>
+            <strong class="qtd-label" id="qtdPago">0</strong>
         </div>
-
-        <div class="resumo-card">
-            <h3>🎡 Lazer</h3>
-            <div class="resumo-linha">
-                <span>🎡 Gastos Lazer</span>
-                <strong id="totalLazer">R$ 0,00</strong>
-                <strong class="perc-valor" id="percLazer">0%</strong>
-                <strong class="qtd-valor" id="qtdLazer">0</strong>
-            </div>
-            <div class="linha-tracejada"></div>
-            <div class="resumo-linha">
-                <span class="total-label">Soma Total</span>
-                <strong id="somaLazerValor">R$ 0,00</strong>
-                <strong class="perc-valor" id="somaLazerPerc">0%</strong>
-                <strong class="qtd-valor" id="somaLazerQtd">0</strong>
-            </div>
+        <div class="resumo-linha">
+            <span>❌ Não pago</span>
+            <strong id="totalPendente">R$ 0,00</strong>
+            <strong id="percPendente">0%</strong>
+            <strong class="qtd-label" id="qtdPendente">0</strong>
         </div>
-
-        <div class="resumo-card">
-            <h3>🎯 Metas</h3>
-            <div class="resumo-linha">
-                <span>🎯 Aportes Metas</span>
-                <strong id="totalMetas">R$ 0,00</strong>
-                <strong class="perc-valor" id="percMetas">0%</strong>
-                <strong class="qtd-valor" id="qtdMetas">0</strong>
-            </div>
-            <div class="linha-tracejada"></div>
-            <div class="resumo-linha">
-                <span class="total-label">Soma Total</span>
-                <strong id="somaMetasValor">R$ 0,00</strong>
-                <strong class="perc-valor" id="somaMetasPerc">0%</strong>
-                <strong class="qtd-valor" id="somaMetasQtd">0</strong>
-            </div>
+        <div class="resumo-linha total-grupo">
+            <span>Soma Total</span>
+            <strong id="somaDespesasValor">R$ 0,00</strong>
+            <strong id="somaDespesasPerc">0%</strong>
+            <strong class="qtd-label" id="qtdTotalDespesas">0</strong>
         </div>
+    </div>
 
-        <div class="resumo-card">
-            <h3>💎 Reservas | Investimentos</h3>
-            <div class="resumo-linha"><span>🆘 Emergência</span><strong id="totalEmergencia">R$ 0,00</strong><strong class="perc-valor" id="percEmergencia">0%</strong><strong class="qtd-valor" id="qtdEmergencia">0</strong></div>
-            <div class="resumo-linha"><span>💎 Reservas</span><strong id="totalReservas">R$ 0,00</strong><strong class="perc-valor" id="percReservas">0%</strong><strong class="qtd-valor" id="qtdReservas">0</strong></div>
-            <div class="resumo-linha"><span>📈 Investimento</span><strong id="totalInvest">R$ 0,00</strong><strong class="perc-valor" id="percInvest">0%</strong><strong class="qtd-valor" id="qtdInvest">0</strong></div>
-            <div class="linha-tracejada"></div>
-            <div class="resumo-linha">
-                <span class="total-label">Soma Total</span>
-                <strong id="somaInvValor">R$ 0,00</strong>
-                <strong class="perc-valor" id="somaInvPerc">0%</strong>
-                <strong class="qtd-valor" id="qtdTotalInv">0</strong>
-            </div>
+    <div class="resumo-card">
+        <h3>💎 Reservas | 📈 Investimentos</h3>
+        <div class="resumo-linha">
+            <span>💎 Reservas</span>
+            <strong id="totalReservas">R$ 0,00</strong>
+            <strong id="percReservas">0%</strong>
+            <strong class="qtd-label" id="qtdReservas">0</strong>
         </div>
+        <div class="resumo-linha">
+            <span>📈 Investimentos</span>
+            <strong id="totalInvestido">R$ 0,00</strong>
+            <strong id="percInvestido">0%</strong>
+            <strong class="qtd-label" id="qtdInvestido">0</strong>
+        </div>
+        <div class="resumo-linha total-grupo">
+            <span>Soma Total</span>
+            <strong id="somaInvestValor">R$ 0,00</strong>
+            <strong id="somaInvestPerc">0%</strong>
+            <strong class="qtd-label" id="qtdTotalInvest">0</strong>
+        </div>
+    </div>
 
-        <div class="resumo-card destaque">
-            <div id="status-humor"></div>
-            <h3>💵 Saldo</h3>
-            <div class="resumo-linha" style="grid-template-columns: 1fr 110px 65px;">
-                <span>Disponível</span>
-                <strong id="saldoFinal" class="positivo">R$ 0,00</strong>
-                <strong class="perc-valor" id="percLivre" style="text-align:right">0%</strong>
-            </div>
+    <div class="resumo-card destaque">
+        <div id="status-humor"></div>
+        <h3>💵 Saldo</h3>
+        <div class="resumo-linha" style="grid-template-columns: 1fr 110px 65px;">
+            <span>Disponível</span>
+            <strong id="saldoFinal" class="positivo">R$ 0,00</strong>
+            <strong id="percLivre">0%</strong>
         </div>
     </div>
 </div>
-
+</div>
 </div>
 
 <script>
 let salario = 0;
-let despesas = [], lazer = [], metas = [], investimentos = [];
-let editDespesa = null, editLazer = null, editMeta = null, editInvest = null;
+let despesas = [];
+let investimentos = [];
+let editDespesa = null;
+let editInvest = null;
 
 function mascaraMoeda(i) {
     let v = i.value.replace(/\D/g,'');
@@ -468,15 +429,28 @@ function mascaraMoeda(i) {
     i.value = v;
 }
 
-const parseBRL = (v) => v ? Number(v.replace(/\./g, '').replace(',', '.')) : 0;
+const parseBRL = (v) => {
+    if (!v) return 0;
+    return Number(v.replace(/\./g, '').replace(',', '.'));
+};
+
+const selectAno = document.getElementById("selectAno");
+const anoAtual = new Date().getFullYear();
+for(let i = anoAtual; i <= anoAtual + 20; i++){
+    const option = document.createElement("option");
+    option.value = i;
+    option.text = i;
+    selectAno.appendChild(option);
+}
+    
 const real = v => v.toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-function formatarDataBR(data){ if(!data) return "-"; const [a,m,d] = data.split("-"); return `${d}/${m}/${a}`; }
-function calcularPercentual(valor){ return salario <= 0 ? "0.00%" : ((valor / salario) * 100).toFixed(2) + "%"; }
 
 function avisar(msg, cor = "#38bdf8") {
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
-    toast.className = 'toast'; toast.style.borderLeftColor = cor; toast.innerText = msg;
+    toast.className = 'toast';
+    toast.style.borderLeftColor = cor;
+    toast.innerText = msg;
     container.appendChild(toast);
     setTimeout(() => { toast.style.opacity = '0'; setTimeout(()=>toast.remove(), 500); }, 3000);
 }
@@ -489,184 +463,315 @@ function perguntar(msg, acao) {
     document.getElementById('confirm-no').onclick = () => { overlay.style.display = 'none'; };
 }
 
+function formatarDataBR(data){
+    if(!data) return "-";
+    const [a,m,d] = data.split("-");
+    return `${d}/${m}/${a}`;
+}
+
+function calcularPercentual(valor){
+    if (salario <= 0) return "0%";
+    return ((valor / salario) * 100).toFixed(2) + "%";
+}
+
 function definirSalario(){
-    salario = parseBRL(salarioInput.value);
-    if(salario <= 0) return avisar("⚠️ Informe um valor", "#ef4444");
-    salarioInput.value = ""; atualizarTudo(); avisar("💰 Salário salvo!", "#22c55e");
+    const novoSalario = parseBRL(salarioInput.value);
+    if (novoSalario <= 0) { avisar("⚠️ Informe um salário válido.", "#ef4444"); return; }
+    salario = novoSalario;
+    salarioInput.value = "";
+    atualizarTudo();
+    avisar("💰 Salário salvo!", "#22c55e");
 }
 
-function atualizarCampoPagamento(){ campoPagamento.style.display = statusDespesa.value === "pago" ? "block" : "none"; }
+function atualizarCampoPagamento(){
+    campoPagamento.style.display = statusDespesa.value === "pago" ? "block" : "none";
+}
 
-// SALVAR FUNÇÕES
 function salvarDespesa(){
-    const d = { nome: nomeDespesa.value, valor: parseBRL(valorDespesa.value), tipo: tipoDespesa.value, venc: vencimentoDespesa.value, pag: statusDespesa.value === "pago" ? pagamentoDespesa.value : "", status: statusDespesa.value };
-    if(!d.nome || d.valor <= 0) return avisar("⚠️ Preencha os campos");
-    if(editDespesa === null) despesas.push(d); else despesas[editDespesa] = d;
-    novaDespesa(); atualizarTudo();
-}
-function novaDespesa(){ editDespesa = null; nomeDespesa.value = ""; valorDespesa.value = ""; tipoDespesa.value = ""; vencimentoDespesa.value = ""; statusDespesa.value = ""; atualizarCampoPagamento(); btnDespesa.innerText = "Salvar despesa"; btnNovaDespesa.style.display = "none"; }
-function editarDespesa(i){ const d = despesas[i]; nomeDespesa.value = d.nome; valorDespesa.value = d.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}); tipoDespesa.value = d.tipo; vencimentoDespesa.value = d.venc; statusDespesa.value = d.status; atualizarCampoPagamento(); editDespesa = i; btnDespesa.innerText = "Atualizar"; btnNovaDespesa.style.display = "block"; }
+    const d = {
+        nome: nomeDespesa.value,
+        valor: parseBRL(valorDespesa.value),
+        tipo: tipoDespesa.value,
+        venc: vencimentoDespesa.value,
+        pag: statusDespesa.value === "pago" ? pagamentoDespesa.value : "",
+        status: statusDespesa.value
+    };
+    if(!d.nome || d.valor <= 0 || !d.tipo || !d.status){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
 
-function salvarLazer(){
-    const l = { nome: nomeLazer.value, valor: parseBRL(valorLazer.value), data: dataLazer.value };
-    if(!l.nome || l.valor <= 0) return avisar("⚠️ Preencha os campos");
-    if(editLazer === null) lazer.push(l); else lazer[editLazer] = l;
-    novoLazer(); atualizarTudo();
+    if (editDespesa === null) {
+        despesas.push(d);
+        avisar("✅ Despesa salva!", "#22c55e");
+    } else {
+        despesas[editDespesa] = d;
+        avisar("✅ Despesa atualizada!", "#38bdf8");
+    }
+    novaDespesa();
+    atualizarTudo();
 }
-function novoLazer(){ editLazer = null; nomeLazer.value = ""; valorLazer.value = ""; dataLazer.value = ""; btnLazer.innerText = "Salvar lazer"; btnNovoLazer.style.display = "none"; }
-function editarLazer(i){ const l = lazer[i]; nomeLazer.value = l.nome; valorLazer.value = l.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}); dataLazer.value = l.data; editLazer = i; btnLazer.innerText = "Atualizar"; btnNovoLazer.style.display = "block"; }
 
-function salvarMeta(){
-    const m = { nome: nomeMeta.value, valor: parseBRL(valorMeta.value), data: dataMeta.value };
-    if(!m.nome || m.valor <= 0) return avisar("⚠️ Preencha os campos");
-    if(editMeta === null) metas.push(m); else metas[editMeta] = m;
-    novaMeta(); atualizarTudo();
+function editarDespesa(i){
+    const d = despesas[i];
+    nomeDespesa.value = d.nome; 
+    valorDespesa.value = d.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2}); 
+    tipoDespesa.value = d.tipo;
+    vencimentoDespesa.value = d.venc; statusDespesa.value = d.status; pagamentoDespesa.value = d.pag;
+    atualizarCampoPagamento();
+    editDespesa = i;
+    btnDespesa.innerText = "Atualizar despesa";
+    btnNovaDespesa.style.display = "block";
+    document.querySelector(".section:nth-of-type(2)").scrollIntoView({ behavior: "smooth" });
 }
-function novaMeta(){ editMeta = null; nomeMeta.value = ""; valorMeta.value = ""; dataMeta.value = ""; btnMeta.innerText = "Salvar meta"; btnNovaMeta.style.display = "none"; }
-function editarMeta(i){ const m = metas[i]; nomeMeta.value = m.nome; valorMeta.value = m.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}); dataMeta.value = m.data; editMeta = i; btnMeta.innerText = "Atualizar"; btnNovaMeta.style.display = "block"; }
+
+function excluirDespesa(i){
+    const nome = despesas[i].nome;
+    perguntar(`Remover "${nome}"?`, () => {
+        despesas.splice(i,1);
+        atualizarTudo();
+        avisar("🗑️ Removida!", "#ef4444");
+    });
+}
+
+function novaDespesa(){
+    editDespesa = null;
+    nomeDespesa.value = ""; valorDespesa.value = ""; tipoDespesa.value = "";
+    vencimentoDespesa.value = ""; pagamentoDespesa.value = ""; statusDespesa.value = "";
+    campoPagamento.style.display = "none";
+    btnDespesa.innerText = "Salvar despesa";
+    btnNovaDespesa.style.display = "none";
+}
 
 function salvarInvestimento(){
-    const inv = { nome: nomeInv.value, valor: parseBRL(valorInv.value), tipo: tipoInv.value, data: dataInv.value };
-    if(!inv.nome || inv.valor <= 0) return avisar("⚠️ Preencha os campos");
-    if(editInvest === null) investimentos.push(inv); else investimentos[editInvest] = inv;
-    novoInvestimento(); atualizarTudo();
-}
-function novoInvestimento(){ editInvest = null; nomeInv.value = ""; valorInv.value = ""; tipoInv.value = ""; dataInv.value = ""; btnInvest.innerText = "Salvar aporte"; btnNovoInvest.style.display = "none"; }
-function editarInvestimento(i){ const inv = investimentos[i]; nomeInv.value = inv.nome; valorInv.value = inv.valor.toLocaleString('pt-BR',{minimumFractionDigits:2}); tipoInv.value = inv.tipo; dataInv.value = inv.data; editInvest = i; btnInvest.innerText = "Atualizar"; btnNovoInvest.style.display = "block"; }
-
-function atualizarTudo(){
-    // Render Cards Despesas
-    document.getElementById("listaDespesas").innerHTML = despesas.map((item, i) => `
-        <div class="item-card">
-            <div class="item-linha"><span class="item-label">Nome</span><span>📝 ${item.nome}</span></div>
-            <div class="item-linha"><span class="item-label">Valor</span><span class="item-valor-foco">${real(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">%</span><span>${calcularPercentual(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">Tipo</span><span>🧾 ${item.tipo}</span></div>
-            <div class="item-linha"><span class="item-label">Venc.</span><span>📅 ${formatarDataBR(item.venc)}</span></div>
-            ${item.status === 'pago' ? `<div class="item-linha"><span class="item-label">Pag.</span><span>📅 ${formatarDataBR(item.pag)}</span></div>` : ''}
-            <div class="item-linha"><span class="item-label">Status</span><span class="${item.status === 'pago' ? 'pago' : 'nao'}">${item.status === 'pago' ? '✅ Pago' : '❌ Não pago'}</span></div>
-            <div class="acoes-card">
-                <button class="editar" onclick="editarDespesa(${i})">Editar</button>
-                <button class="excluir" onclick="perguntar('Excluir despesa?', () => { despesas.splice(${i},1); atualizarTudo(); })">Excluir</button>
-            </div>
-        </div>
-    `).join('');
-
-    // Render Cards Lazer
-    document.getElementById("listaLazer").innerHTML = lazer.map((item, i) => `
-        <div class="item-card">
-            <div class="item-linha"><span class="item-label">Nome</span><span>🎡 ${item.nome}</span></div>
-            <div class="item-linha"><span class="item-label">Valor</span><span class="item-valor-foco">${real(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">%</span><span>${calcularPercentual(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">Data</span><span>📅 ${formatarDataBR(item.data)}</span></div>
-            <div class="acoes-card">
-                <button class="editar" onclick="editarLazer(${i})">Editar</button>
-                <button class="excluir" onclick="perguntar('Excluir lazer?', () => { lazer.splice(${i},1); atualizarTudo(); })">Excluir</button>
-            </div>
-        </div>
-    `).join('');
-
-    // Render Cards Metas
-    document.getElementById("listaMetas").innerHTML = metas.map((item, i) => `
-        <div class="item-card">
-            <div class="item-linha"><span class="item-label">Nome</span><span>🎯 ${item.nome}</span></div>
-            <div class="item-linha"><span class="item-label">Valor</span><span class="item-valor-foco">${real(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">%</span><span>${calcularPercentual(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">Data</span><span>📅 ${formatarDataBR(item.data)}</span></div>
-            <div class="acoes-card">
-                <button class="editar" onclick="editarMeta(${i})">Editar</button>
-                <button class="excluir" onclick="perguntar('Excluir meta?', () => { metas.splice(${i},1); atualizarTudo(); })">Excluir</button>
-            </div>
-        </div>
-    `).join('');
-
-    // Render Cards Investimentos
-    document.getElementById("listaInvestimentos").innerHTML = investimentos.map((item, i) => `
-        <div class="item-card">
-            <div class="item-linha"><span class="item-label">Nome</span><span>📈 ${item.nome}</span></div>
-            <div class="item-linha"><span class="item-label">Valor</span><span class="item-valor-foco">${real(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">%</span><span>${calcularPercentual(item.valor)}</span></div>
-            <div class="item-linha"><span class="item-label">Tipo</span><span>📌 ${item.tipo}</span></div>
-            <div class="item-linha"><span class="item-label">Data</span><span>📅 ${formatarDataBR(item.data)}</span></div>
-            <div class="acoes-card">
-                <button class="editar" onclick="editarInvestimento(${i})">Editar</button>
-                <button class="excluir" onclick="perguntar('Excluir aporte?', () => { investimentos.splice(${i},1); atualizarTudo(); })">Excluir</button>
-            </div>
-        </div>
-    `).join('');
-
-    // Cálculos Resumo
-    const calc = (arr) => arr.reduce((s, x) => s + x.valor, 0);
-    const dPago = despesas.filter(d => d.status === 'pago');
-    const dNao = despesas.filter(d => d.status === 'nao');
-    const vPago = calc(dPago), vNao = calc(dNao);
-    const vLazer = calc(lazer), vMetas = calc(metas);
-    const vEmerg = calc(investimentos.filter(i => i.tipo === 'emergencia'));
-    const vRes = calc(investimentos.filter(i => i.tipo === 'reserva'));
-    const vInv = calc(investimentos.filter(i => i.tipo === 'investimento'));
-
-    // Atualizar UI Resumo
-    const setRes = (idV, idP, idQ, val) => {
-        document.getElementById(idV).innerText = real(val);
-        document.getElementById(idP).innerText = calcularPercentual(val);
-        document.getElementById(idQ).innerText = 0; 
+    const i = {
+        nome: nomeInv.value,
+        valor: parseBRL(valorInv.value),
+        tipo: tipoInv.value,
+        data: dataInv.value
     };
+    if(!i.nome || i.valor <= 0 || !i.tipo || !i.data){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
 
-    setRes("totalPago", "percPago", "qtdPago", vPago); document.getElementById("qtdPago").innerText = dPago.length;
-    setRes("totalPendente", "percPendente", "qtdPendente", vNao); document.getElementById("qtdPendente").innerText = dNao.length;
-    setRes("somaDespesasValor", "somaDespesasPerc", "qtdTotalDespesas", vPago + vNao); document.getElementById("qtdTotalDespesas").innerText = despesas.length;
-
-    setRes("totalLazer", "percLazer", "qtdLazer", vLazer); document.getElementById("qtdLazer").innerText = lazer.length;
-    setRes("somaLazerValor", "somaLazerPerc", "somaLazerQtd", vLazer); document.getElementById("somaLazerQtd").innerText = lazer.length;
-
-    setRes("totalMetas", "percMetas", "qtdMetas", vMetas); document.getElementById("qtdMetas").innerText = metas.length;
-    setRes("somaMetasValor", "somaMetasPerc", "somaMetasQtd", vMetas); document.getElementById("somaMetasQtd").innerText = metas.length;
-
-    setRes("totalEmergencia", "percEmergencia", "qtdEmergencia", vEmerg); document.getElementById("qtdEmergencia").innerText = investimentos.filter(i=>i.tipo==='emergencia').length;
-    setRes("totalReservas", "percReservas", "qtdReservas", vRes); document.getElementById("qtdReservas").innerText = investimentos.filter(i=>i.tipo==='reserva').length;
-    setRes("totalInvest", "percInvest", "qtdInvest", vInv); document.getElementById("qtdInvest").innerText = investimentos.filter(i=>i.tipo==='investimento').length;
-    setRes("somaInvValor", "somaInvPerc", "qtdTotalInv", vEmerg + vRes + vInv); document.getElementById("qtdTotalInv").innerText = investimentos.length;
-
-    const saldo = salario - vPago - vLazer - vMetas - vEmerg - vRes - vInv;
-    document.getElementById("displaySalario").innerText = real(salario);
-    document.getElementById("saldoFinal").innerText = real(saldo);
-    document.getElementById("percLivre").innerText = calcularPercentual(saldo);
-    document.getElementById("saldoFinal").className = saldo >= 0 ? "positivo" : "negativo";
-
-    // --- PROCURE ESTA PARTE NO FINAL DA FUNÇÃO atualizarTudo() ---
-    const hum = document.getElementById("status-humor");
-    let classeStatus = "";
-    let emoji = "";
-
-    if (saldo < 0) {
-        classeStatus = "status-vermelho";
-        emoji = "😭";
-    } else if (saldo < 250) {
-        classeStatus = "status-amarelo";
-        emoji = "😐";
+    if (editInvest === null) {
+        investimentos.push(i);
+        avisar("✅ Adicionado!", "#22c55e");
     } else {
-        classeStatus = "status-verde";
-        emoji = "😊";
+        investimentos[editInvest] = i;
+        avisar("✅ Atualizado!", "#38bdf8");
+    }
+    novoInvestimento();
+    atualizarTudo();
+}
+
+function editarInvestimento(i){
+    const v = investimentos[i];
+    nomeInv.value = v.nome; 
+    valorInv.value = v.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    tipoInv.value = v.tipo; 
+    dataInv.value = v.data;
+    editInvest = i;
+    btnInvest.innerText = "Atualizar";
+    btnNovoInvest.style.display = "block";
+    document.getElementById("tituloInvest").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function excluirInvestimento(i){
+    const nome = investimentos[i].nome;
+    perguntar(`Remover "${nome}"?`, () => {
+        investimentos.splice(i,1);
+        atualizarTudo();
+        avisar("🗑️ Removido!", "#ef4444");
+    });
+}
+
+function novoInvestimento(){
+    editInvest = null;
+    nomeInv.value = ""; valorInv.value = ""; tipoInv.value = ""; dataInv.value = "";
+    btnInvest.innerText = "Salvar";
+    btnNovoInvest.style.display = "none";
+}
+
+function listarDespesas() {
+    listaDespesas.innerHTML = despesas.map((d, i) => `
+        <tr>
+            <td data-label="Nome">📝 ${d.nome}</td>
+            <td data-label="Valor">💲 ${real(d.valor)}</td>
+            <td data-label="%">${calcularPercentual(d.valor)}</td>
+            <td data-label="Tipo">
+                <span class="valor-tipo-estilizado">🧾 ${d.tipo}</span>
+            </td>
+            <td data-label="Venc.">📅 ${formatarDataBR(d.venc)}</td>
+            <td data-label="Pag.">📅 ${formatarDataBR(d.pag)}</td>
+            <td data-label="Status" class="${d.status}">
+                ${d.status === "pago" ? "✅ Pago" : "❌ Não pago"}
+            </td>
+            <td class="acoes">
+                <button onclick="editarDespesa(${i})">Editar</button>
+                <button class="excluir" onclick="excluirDespesa(${i})">Excluir</button>
+            </td>
+        </tr>
+    `).join('');
+}
+
+
+function listarInvestimentos(){
+    listaInvestimentos.innerHTML = investimentos.map((i,idx)=>`
+        <tr>
+            <td data-label="Nome">📝 ${i.nome}</td>
+            <td data-label="Valor">💲 ${real(i.valor)}</td>
+            <td data-label="%">${calcularPercentual(i.valor)}</td>
+            <td data-label="Tipo">${i.tipo === "reserva" ? "💎 Reserva" : "📈 Investimento"}</td>
+            <td data-label="Data">📅 ${formatarDataBR(i.data)}</td>
+            <td class="acoes"><button onclick="editarInvestimento(${idx})">Editar</button><button class="excluir" onclick="excluirInvestimento(${idx})">Excluir</button></td>
+        </tr>`).join('');
+}
+
+function atualizarResumo(){
+    const dPagos = despesas.filter(d => d.status === "pago");
+    const dPendentes = despesas.filter(d => d.status === "nao");
+    const valorPago = dPagos.reduce((s, d) => s + d.valor, 0);
+    const valorPendente = dPendentes.reduce((s, d) => s + d.valor, 0);
+    const valorTotalDesp = valorPago + valorPendente;
+
+    const iReservas = investimentos.filter(i => i.tipo === "reserva");
+    const iInvest = investimentos.filter(i => i.tipo === "investimento");
+    const valorReservas = iReservas.reduce((s, i) => s + i.valor, 0);
+    const valorInvest = iInvest.reduce((s, i) => s + i.valor, 0);
+    const valorTotalInv = valorReservas + valorInvest;
+
+    const saldo = salario - valorPago - valorReservas - valorInvest;
+
+    // --- NOVA LÓGICA DE STATUS PEDIDA ---
+    const statusDiv = document.getElementById("status-humor");
+    if (salario === 0 && despesas.length === 0) {
+        statusDiv.innerHTML = "";
+    } else if (saldo < 0) {
+        // Negativo: Vermelho + Chorando
+        statusDiv.innerHTML = "Status: 😭";
+        statusDiv.style.color = "#ef4444";
+    } else if (saldo >= 0 && saldo <= 250) {
+        // Entre 0 e 250: Amarelo + Cara normal
+        statusDiv.innerHTML = "Status: 😐";
+        statusDiv.style.color = "#f59e0b";
+    } else {
+        // Acima de 250: Verde + Sorrindo
+        statusDiv.innerHTML = "Status: 😊";
+        statusDiv.style.color = "#22c55e";
     }
 
-    // Aqui injetamos o texto "Status" com a cor + o emoji
-    hum.innerHTML = `<span class="${classeStatus}">Status</span> ${emoji}`;
+    document.getElementById("totalPago").innerText = real(valorPago);
+    document.getElementById("percPago").innerText = calcularPercentual(valorPago);
+    document.getElementById("qtdPago").innerText = dPagos.length;
 
+    document.getElementById("totalPendente").innerText = real(valorPendente);
+    document.getElementById("percPendente").innerText = calcularPercentual(valorPendente);
+    document.getElementById("qtdPendente").innerText = dPendentes.length;
+
+    document.getElementById("somaDespesasValor").innerText = real(valorTotalDesp);
+    document.getElementById("somaDespesasPerc").innerText = calcularPercentual(valorTotalDesp);
+    document.getElementById("qtdTotalDespesas").innerText = despesas.length;
+
+    document.getElementById("totalReservas").innerText = real(valorReservas);
+    document.getElementById("percReservas").innerText = calcularPercentual(valorReservas);
+    document.getElementById("qtdReservas").innerText = iReservas.length;
+
+    document.getElementById("totalInvestido").innerText = real(valorInvest);
+    document.getElementById("percInvestido").innerText = calcularPercentual(valorInvest);
+    document.getElementById("qtdInvestido").innerText = iInvest.length;
+
+    document.getElementById("somaInvestValor").innerText = real(valorTotalInv);
+    document.getElementById("somaInvestPerc").innerText = calcularPercentual(valorTotalInv);
+    document.getElementById("qtdTotalInvest").innerText = investimentos.length;
+
+    displaySalario.innerText = real(salario);
+    saldoFinal.innerText = real(saldo);
+    saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
+    
+    let percLivreValor = (salario > 0) ? (saldo / salario) * 100 : 0;
+    percLivre.innerText = percLivreValor.toFixed(2) + "%";
+}
+
+function atualizarTudo(){
+    listarDespesas();
+    listarInvestimentos();
+    atualizarResumo();
     salvarDados();
 }
 
-function salvarDados() { localStorage.setItem("fin_data", JSON.stringify({ salario, despesas, lazer, metas, investimentos, mes: selectMes.value, ano: selectAno.value })); }
+/* ================= BLOQUINHOS INFORMATIVOS ================= */
+const criarBloquinho = () => {
+    const el = document.createElement("div");
+    el.style.cssText = "position:absolute; background:#1e293b; border:2px solid #38bdf8; border-radius:8px; padding:10px; z-index:9999; display:none; max-height:200px; overflow-y:auto; width:300px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);";
+    document.body.appendChild(el);
+    return el;
+};
+
+const bDesp = criarBloquinho();
+const bInv = criarBloquinho();
+
+nomeDespesa.addEventListener("focus", () => {
+    let html = "<span class='bloquinho-titulo'>contas já cadastradas:</span>";
+    if (despesas.length === 0) {
+        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma conta registrada</div>";
+    } else {
+        html += despesas.map(d => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${d.nome}</span><span style='color:#38bdf8'>${real(d.valor)}</span></div>`).join('');
+    }
+    bDesp.innerHTML = html;
+    const r = nomeDespesa.getBoundingClientRect();
+    bDesp.style.top = r.bottom + window.scrollY + 5 + "px"; bDesp.style.left = r.left + window.scrollX + "px"; bDesp.style.display = "block";
+});
+nomeDespesa.addEventListener("blur", () => setTimeout(() => bDesp.style.display = "none", 200));
+
+nomeInv.addEventListener("focus", () => {
+    let html = "<span class='bloquinho-titulo'>reservas e investimentos já cadastrados:</span>";
+    if (investimentos.length === 0) {
+        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma reserva ou investimento registrado</div>";
+    } else {
+        html += investimentos.map(i => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${i.nome}</span><span style='color:#38bdf8'>${real(i.valor)}</span></div>`).join('');
+    }
+    bInv.innerHTML = html;
+    const r = nomeInv.getBoundingClientRect();
+    bInv.style.top = r.bottom + window.scrollY + 5 + "px"; bInv.style.left = r.left + window.scrollX + "px"; bInv.style.display = "block";
+});
+nomeInv.addEventListener("blur", () => setTimeout(() => bInv.style.display = "none", 200));
+
+function salvarDados() {
+    const dados = {
+        salario,
+        despesas,
+        investimentos,
+        mesSelecionado: selectMes.value,
+        anoSelecionado: selectAno.value
+    };
+    localStorage.setItem("controleFinanceiro", JSON.stringify(dados));
+}
+
 function carregarDados() {
-    const d = JSON.parse(localStorage.getItem("fin_data") || "{}");
-    if(d.salario) { salario = d.salario; despesas = d.despesas; lazer = d.lazer; metas = d.metas; investimentos = d.investimentos; selectMes.value = d.mes; selectAno.value = d.ano; }
+    const salvo = localStorage.getItem("controleFinanceiro");
+    if (!salvo) return;
+    const dados = JSON.parse(salvo);
+    salario = dados.salario || 0;
+    despesas = dados.despesas || [];
+    investimentos = dados.investimentos || [];
+    if (dados.mesSelecionado) selectMes.value = dados.mesSelecionado;
+    if (dados.anoSelecionado) selectAno.value = dados.anoSelecionado;
     atualizarTudo();
 }
-function zerarTudo() { perguntar("Limpar todos os dados?", () => { localStorage.clear(); location.reload(); }); }
-
-const sAno = document.getElementById("selectAno");
-for(let i=2024; i<=2030; i++) { const o = document.createElement("option"); o.value=i; o.text=i; sAno.add(o); }
 
 carregarDados();
+
+selectMes.addEventListener("change", salvarDados);
+selectAno.addEventListener("change", salvarDados);
+
+function zerarTudo() {
+    perguntar("⚠️ Isso vai apagar TODOS os dados salvos. Deseja continuar?", () => {
+        salario = 0;
+        despesas = [];
+        investimentos = [];
+        selectMes.value = "";
+        selectAno.value = "";
+        localStorage.removeItem("controleFinanceiro");
+        atualizarTudo();
+        avisar("🧹 Tudo foi zerado com sucesso!", "#ef4444");
+    });
+}
 </script>
 </body>
 </html>
