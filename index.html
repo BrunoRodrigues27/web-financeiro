@@ -129,9 +129,8 @@ td::before {
     margin-top: 8px;
 }
 
-/* Ajuste para o valor do Tipo ficar igual ao Nome */
 .valor-tipo-estilizado {
-    color: #e5e7eb; /* Mesma cor do texto geral (como o nome Luz) */
+    color: #e5e7eb;
     text-transform: capitalize;
 }
 
@@ -150,6 +149,17 @@ td::before {
 
 .resumo-card.destaque {
     border: 2px solid #38bdf8;
+    position: relative;
+}
+
+/* STATUS COLADO NO TOPO DIREITO */
+#status-humor {
+    position: absolute;
+    top: 10px;
+    right: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
 .resumo-linha {
@@ -391,6 +401,7 @@ td::before {
     </div>
 
     <div class="resumo-card destaque">
+        <div id="status-humor"></div>
         <h3>💵 Saldo</h3>
         <div class="resumo-linha" style="grid-template-columns: 1fr 110px 65px;">
             <span>Disponível</span>
@@ -460,7 +471,6 @@ function formatarDataBR(data){
 
 function calcularPercentual(valor){
     if (salario <= 0) return "0%";
-    if (valor >= salario) return "100%"; 
     return ((valor / salario) * 100).toFixed(2) + "%";
 }
 
@@ -578,7 +588,6 @@ function novoInvestimento(){
     btnNovoInvest.style.display = "none";
 }
 
-// ATUALIZAÇÃO: Emojis adicionados e estilo do Tipo corrigido
 function listarDespesas() {
     listaDespesas.innerHTML = despesas.map((d, i) => `
         <tr>
@@ -629,6 +638,24 @@ function atualizarResumo(){
 
     const saldo = salario - valorPago - valorReservas - valorInvest;
 
+    // --- NOVA LÓGICA DE STATUS PEDIDA ---
+    const statusDiv = document.getElementById("status-humor");
+    if (salario === 0 && despesas.length === 0) {
+        statusDiv.innerHTML = "";
+    } else if (saldo < 0) {
+        // Negativo: Vermelho + Chorando
+        statusDiv.innerHTML = "Status: 😭";
+        statusDiv.style.color = "#ef4444";
+    } else if (saldo >= 0 && saldo <= 250) {
+        // Entre 0 e 250: Amarelo + Cara normal
+        statusDiv.innerHTML = "Status: 😐";
+        statusDiv.style.color = "#f59e0b";
+    } else {
+        // Acima de 250: Verde + Sorrindo
+        statusDiv.innerHTML = "Status: 😊";
+        statusDiv.style.color = "#22c55e";
+    }
+
     document.getElementById("totalPago").innerText = real(valorPago);
     document.getElementById("percPago").innerText = calcularPercentual(valorPago);
     document.getElementById("qtdPago").innerText = dPagos.length;
@@ -657,8 +684,7 @@ function atualizarResumo(){
     saldoFinal.innerText = real(saldo);
     saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
     
-    let percLivreValor = (salario > 0 && saldo > 0) ? (saldo / salario) * 100 : 0;
-    if (percLivreValor > 100) percLivreValor = 100;
+    let percLivreValor = (salario > 0) ? (saldo / salario) * 100 : 0;
     percLivre.innerText = percLivreValor.toFixed(2) + "%";
 }
 
@@ -668,6 +694,7 @@ function atualizarTudo(){
     atualizarResumo();
     salvarDados();
 }
+
 /* ================= BLOQUINHOS INFORMATIVOS ================= */
 const criarBloquinho = () => {
     const el = document.createElement("div");
@@ -719,21 +746,12 @@ function salvarDados() {
 function carregarDados() {
     const salvo = localStorage.getItem("controleFinanceiro");
     if (!salvo) return;
-
     const dados = JSON.parse(salvo);
-
     salario = dados.salario || 0;
     despesas = dados.despesas || [];
     investimentos = dados.investimentos || [];
-
-    if (dados.mesSelecionado) {
-        selectMes.value = dados.mesSelecionado;
-    }
-
-    if (dados.anoSelecionado) {
-        selectAno.value = dados.anoSelecionado;
-    }
-
+    if (dados.mesSelecionado) selectMes.value = dados.mesSelecionado;
+    if (dados.anoSelecionado) selectAno.value = dados.anoSelecionado;
     atualizarTudo();
 }
 
@@ -747,12 +765,9 @@ function zerarTudo() {
         salario = 0;
         despesas = [];
         investimentos = [];
-
         selectMes.value = "";
         selectAno.value = "";
-
         localStorage.removeItem("controleFinanceiro");
-
         atualizarTudo();
         avisar("🧹 Tudo foi zerado com sucesso!", "#ef4444");
     });
