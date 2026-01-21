@@ -584,7 +584,7 @@ function listarDespesas(){
             <td data-label="Nome">📝 ${d.nome}</td>
             <td data-label="Valor">💲 ${real(d.valor)}</td>
             <td data-label="%">󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥󠀥${calcularPercentual(d.valor)}</td>
-            <td data-label="Tipo"><span class="valor-tipo-estilizado">📌 ${d.tipo}</span></td>
+            <td data-label="Tipo"><span class="valor-tipo-estilizado">🧾 ${d.tipo}</span></td>
             <td data-label="Venc.">📅 ${formatarDataBR(d.venc)}</td>
             <td data-label="Pag.">📅 ${formatarDataBR(d.pag)}</td>
             <td data-label="Status" class="${d.status}">${d.status === "pago" ? "✅ Pago" : "❌ Não paga"}</td>
@@ -685,7 +685,7 @@ nomeDespesa.addEventListener("blur", () => setTimeout(() => bDesp.style.display 
 nomeInv.addEventListener("focus", () => {
     let html = "<span class='bloquinho-titulo'>reservas e investimentos já cadastrados:</span>";
     if (investimentos.length === 0) {
-        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma reserva registrada</div>";
+        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma reserva ou investimento registrado</div>";
     } else {
         html += investimentos.map(i => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${i.nome}</span><span style='color:#38bdf8'>${real(i.valor)}</span></div>`).join('');
     }
