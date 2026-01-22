@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Controle Financeiro</title>
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&icon_names=menu" />
 
 <style>
 * { box-sizing: border-box; }
@@ -244,6 +245,37 @@ td::before {
     padding-bottom: 4px;
     text-transform: uppercase;
 }
+
+div.caixa-menu {
+    text-align: center;
+    margin-top: 15px;
+    margin-bottom: 10px;
+    width: 100%;
+}
+
+span.icone {
+    font-size: 1.5em;
+    cursor: pointer;
+    width: 100%;
+    
+}
+
+div#expandir-inputs-dispesa,
+div#expandir-investimento {
+    display: none;
+}
+
+div.lista-geral {
+    display: block;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+button.salvar {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
 </style>
 </head>
 
@@ -295,62 +327,77 @@ td::before {
 <div class="section">
 <h2>💰 Configurar Salário</h2>
 <input type="text" id="salarioInput" placeholder="💲 Digite seu salário" oninput="mascaraMoeda(this)" maxlength="12">
-<button onclick="definirSalario()">Salvar salário</button>
+<button class="salvar" onclick="definirSalario()">Salvar salário</button>
 </div>
 
 <div class="section">
 <h2>🧾 Despesas</h2>
-<input id="nomeDespesa" placeholder="📝 Nome da conta" maxlength="40" autocomplete="off">
-<input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)" maxlength="9">
-
-<select id="tipoDespesa">
-    <option value="" disabled selected>📌 Tipo da despesa</option>
-    <option value="fixa">🧾 Fixa</option>
-    <option value="pontual">🧾 Pontual</option>
-</select>
-
-<label>📅 Data de vencimento</label>
-<input type="date" id="vencimentoDespesa">
-
-<select id="statusDespesa" onchange="atualizarCampoPagamento()">
-    <option value="" disabled selected>Status</option>
-    <option value="nao">❌ Não pago</option>
-    <option value="pago">✅ Pago</option>
-</select>
-
-<div id="campoPagamento" style="display:none">
-    <label>📅 Data de pagamento</label>
-    <input type="date" id="pagamentoDespesa">
+<input id="nomeDespesa" placeholder="📝 Nome da despesa" maxlength="40" autocomplete="off">
+<div class="caixa-menu">
+    <span id="icone-menu" class="icone material-symbols-outlined">menu</span>
 </div>
-
-<div class="botoes">
-    <button id="btnDespesa" onclick="salvarDespesa()">Salvar despesa</button>
-    <button id="btnNovaDespesa" class="secundario" onclick="novaDespesa()" style="display:none">Nova despesa</button>
+<div id="expandir-inputs-dispesa">
+    
+    <input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)" maxlength="9">
+    
+    <select id="tipoDespesa">
+        <option value="" disabled selected>📌 Tipo da despesa</option>
+        <option value="fixa">🧾 Fixa</option>
+        <option value="pontual">🧾 Pontual</option>
+    </select>
+    
+    <label>📅 Data de vencimento</label>
+    <input type="date" id="vencimentoDespesa">
+    
+    <select id="statusDespesa" onchange="atualizarCampoPagamento()">
+        <option value="" disabled selected>Status</option>
+        <option value="nao">❌ Não pago</option>
+        <option value="pago">✅ Pago</option>
+    </select>
+    
+    <div id="campoPagamento" style="display:none">
+        <label>📅 Data de pagamento</label>
+        <input type="date" id="pagamentoDespesa">
+    </div>
+    
+    <div class="botoes">
+        <button class="salvar" id="btnDespesa" onclick="salvarDespesa()">Salvar despesa</button>
+        <button id="btnNovaDespesa" class="secundario" onclick="novaDespesa()" style="display:none">Nova despesa</button>
+    </div>
+    
+    <div class="lista-geral">
+        <table><tbody id="listaDespesas"></tbody></table>
+    </div>
 </div>
-
-<table><tbody id="listaDespesas"></tbody></table>
 </div>
 
 <div class="section">
 <h2 id="tituloInvest" >💎 Reservas | 📈 Investimentos</h2>
-<input id="nomeInv" placeholder="📝 Nome" maxlength="40" autocomplete="off">
-<input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)" maxlength="9">
-
-<select id="tipoInv">
-    <option value="" disabled selected>📌 Tipo</option>
-    <option value="reserva">💎 Reserva</option>
-    <option value="investimento">📈 Investimento</option>
-</select>
-
-<label>📅 Data do aporte</label>
-<input type="date" id="dataInv">
-
-<div class="botoes">
-    <button id="btnInvest" onclick="salvarInvestimento()">Salvar reserva ou investimento</button>
-    <button id="btnNovoInvest" class="secundario" onclick="novoInvestimento()" style="display:none">Novo</button>
+<input id="nomeInv" placeholder="💎 📈 Nome da reserva ou investimento" maxlength="40" autocomplete="off">
+    <div class="caixa-menu">
+        <span id="menu-investimento" class="icone material-symbols-outlined">menu</span>
+    </div>
+<div id="expandir-investimento">
+    <input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)" maxlength="9">
+    
+    <select id="tipoInv">
+        <option value="" disabled selected>📌 Tipo</option>
+        <option value="reserva">💎 Reserva</option>
+        <option value="investimento">📈 Investimento</option>
+    </select>
+    
+    <label>📅 Data do aporte</label>
+    <input type="date" id="dataInv">
+    
+    <div class="botoes">
+        <button class="salvar" id="btnInvest" onclick="salvarInvestimento()">Salvar reserva ou investimento</button>
+        <button id="btnNovoInvest" class="secundario" onclick="novoInvestimento()" style="display:none">Novo</button>
+    </div>
+    
+    <div class="lista-geral">
+        <table><tbody id="listaInvestimentos"></tbody></table>
+    </div>
 </div>
-
-<table><tbody id="listaInvestimentos"></tbody></table>
 </div>
 
 <div class="section">
@@ -771,6 +818,32 @@ function zerarTudo() {
         atualizarTudo();
         avisar("🧹 Tudo foi zerado com sucesso!", "#ef4444");
     });
+}
+
+let icone_menu = document.getElementById('icone-menu')
+let expandir_inputs_despesa = document.getElementById('expandir-inputs-dispesa')
+
+icone_menu.addEventListener('click', expandir_despesas)
+
+function expandir_despesas() {
+    if (expandir_inputs_despesa.style.display === 'block') {
+        expandir_inputs_despesa.style.display = 'none'
+    } else {
+        expandir_inputs_despesa.style.display = 'block'
+    }
+}
+
+let menu_investimento = document.getElementById('menu-investimento')
+let expandir_investimento = document.getElementById('expandir-investimento')
+
+menu_investimento.addEventListener('click', expandir_inputs_investimento)
+
+function expandir_inputs_investimento() {
+    if (expandir_investimento.style.display === 'block') {
+        expandir_investimento.style.display = 'none'
+    } else {
+        expandir_investimento.style.display = 'block'
+    }
 }
 </script>
 </body>
