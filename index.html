@@ -153,7 +153,6 @@ td::before {
     position: relative;
 }
 
-/* STATUS COLADO NO TOPO DIREITO */
 #status-humor {
     position: absolute;
     top: 10px;
@@ -191,7 +190,6 @@ td::before {
     text-align: right;
 }
 
-/* SISTEMA DE MENSAGENS */
 #toast-container {
     position: fixed;
     top: 20px;
@@ -257,11 +255,11 @@ span.icone {
     font-size: 1.5em;
     cursor: pointer;
     width: 100%;
-    
 }
 
 div#expandir-inputs-dispesa,
-div#expandir-investimento {
+div#expandir-investimento,
+div#expandir-lazer {
     display: none;
 }
 
@@ -275,7 +273,6 @@ button.salvar {
     margin-top: 20px;
     margin-bottom: 20px;
 }
-
 </style>
 </head>
 
@@ -337,34 +334,27 @@ button.salvar {
     <span id="icone-menu" class="icone material-symbols-outlined">menu</span>
 </div>
 <div id="expandir-inputs-dispesa">
-    
     <input id="valorDespesa" type="text" placeholder="💲 Valor da conta" oninput="mascaraMoeda(this)" maxlength="9">
-    
     <select id="tipoDespesa">
         <option value="" disabled selected>📌 Tipo da despesa</option>
         <option value="fixa">🧾 Fixa</option>
         <option value="pontual">🧾 Pontual</option>
     </select>
-    
     <label>📅 Data de vencimento</label>
     <input type="date" id="vencimentoDespesa">
-    
     <select id="statusDespesa" onchange="atualizarCampoPagamento()">
         <option value="" disabled selected>Status</option>
         <option value="nao">❌ Não pago</option>
         <option value="pago">✅ Pago</option>
     </select>
-    
     <div id="campoPagamento" style="display:none">
         <label>📅 Data de pagamento</label>
         <input type="date" id="pagamentoDespesa">
     </div>
-    
     <div class="botoes">
         <button class="salvar" id="btnDespesa" onclick="salvarDespesa()">Salvar despesa</button>
         <button id="btnNovaDespesa" class="secundario" onclick="novaDespesa()" style="display:none">Nova despesa</button>
     </div>
-    
     <div class="lista-geral">
         <table><tbody id="listaDespesas"></tbody></table>
     </div>
@@ -379,23 +369,39 @@ button.salvar {
     </div>
 <div id="expandir-investimento">
     <input id="valorInv" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)" maxlength="9">
-    
     <select id="tipoInv">
         <option value="" disabled selected>📌 Tipo</option>
         <option value="reserva">💎 Reserva</option>
         <option value="investimento">📈 Investimento</option>
     </select>
-    
     <label>📅 Data do aporte</label>
     <input type="date" id="dataInv">
-    
     <div class="botoes">
         <button class="salvar" id="btnInvest" onclick="salvarInvestimento()">Salvar reserva ou investimento</button>
         <button id="btnNovoInvest" class="secundario" onclick="novoInvestimento()" style="display:none">Novo</button>
     </div>
-    
     <div class="lista-geral">
         <table><tbody id="listaInvestimentos"></tbody></table>
+    </div>
+</div>
+</div>
+
+<div class="section">
+<h2 id="tituloLazer">🍿 Lazer</h2>
+<input id="nomeLazer" placeholder="🍿 Nome da atividade ou gasto de lazer" maxlength="40" autocomplete="off">
+<div class="caixa-menu">
+    <span id="menu-lazer" class="icone material-symbols-outlined">menu</span>
+</div>
+<div id="expandir-lazer">
+    <input id="valorLazer" type="text" placeholder="💲 Valor" oninput="mascaraMoeda(this)" maxlength="9">
+    <label>📅 Data</label>
+    <input type="date" id="dataLazer">
+    <div class="botoes">
+        <button class="salvar" id="btnLazer" onclick="salvarLazer()">Salvar lazer</button>
+        <button id="btnNovoLazer" class="secundario" onclick="novoLazer()" style="display:none">Novo</button>
+    </div>
+    <div class="lista-geral">
+        <table><tbody id="listaLazer"></tbody></table>
     </div>
 </div>
 </div>
@@ -447,6 +453,16 @@ button.salvar {
         </div>
     </div>
 
+    <div class="resumo-card">
+        <h3>🍿 Lazer</h3>
+        <div class="resumo-linha total-grupo">
+            <span>Soma Total</span>
+            <strong id="somaLazerValor">R$ 0,00</strong>
+            <strong id="somaLazerPerc">0%</strong>
+            <strong class="qtd-label" id="qtdTotalLazer">0</strong>
+        </div>
+    </div>
+
     <div class="resumo-card destaque">
         <div id="status-humor"></div>
         <h3>💵 Saldo</h3>
@@ -464,8 +480,10 @@ button.salvar {
 let salario = 0;
 let despesas = [];
 let investimentos = [];
+let lazer = [];
 let editDespesa = null;
 let editInvest = null;
+let editLazer = null;
 
 function mascaraMoeda(i) {
     let v = i.value.replace(/\D/g,'');
@@ -534,6 +552,7 @@ function atualizarCampoPagamento(){
     campoPagamento.style.display = statusDespesa.value === "pago" ? "block" : "none";
 }
 
+// FUNÇÕES DESPESAS
 function salvarDespesa(){
     const d = {
         nome: nomeDespesa.value,
@@ -544,16 +563,9 @@ function salvarDespesa(){
         status: statusDespesa.value
     };
     if(!d.nome || d.valor <= 0 || !d.tipo || !d.status){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
-
-    if (editDespesa === null) {
-        despesas.push(d);
-        avisar("✅ Despesa salva!", "#22c55e");
-    } else {
-        despesas[editDespesa] = d;
-        avisar("✅ Despesa atualizada!", "#38bdf8");
-    }
-    novaDespesa();
-    atualizarTudo();
+    if (editDespesa === null) { despesas.push(d); avisar("✅ Salvo!", "#22c55e"); }
+    else { despesas[editDespesa] = d; avisar("✅ Atualizado!", "#38bdf8"); }
+    novaDespesa(); atualizarTudo();
 }
 
 function editarDespesa(i){
@@ -570,12 +582,7 @@ function editarDespesa(i){
 }
 
 function excluirDespesa(i){
-    const nome = despesas[i].nome;
-    perguntar(`Remover "${nome}"?`, () => {
-        despesas.splice(i,1);
-        atualizarTudo();
-        avisar("🗑️ Removida!", "#ef4444");
-    });
+    perguntar(`Remover "${despesas[i].nome}"?`, () => { despesas.splice(i,1); atualizarTudo(); avisar("🗑️ Removida!", "#ef4444"); });
 }
 
 function novaDespesa(){
@@ -587,76 +594,72 @@ function novaDespesa(){
     btnNovaDespesa.style.display = "none";
 }
 
+// FUNÇÕES INVESTIMENTOS
 function salvarInvestimento(){
-    const i = {
-        nome: nomeInv.value,
-        valor: parseBRL(valorInv.value),
-        tipo: tipoInv.value,
-        data: dataInv.value
-    };
+    const i = { nome: nomeInv.value, valor: parseBRL(valorInv.value), tipo: tipoInv.value, data: dataInv.value };
     if(!i.nome || i.valor <= 0 || !i.tipo || !i.data){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
-
-    if (editInvest === null) {
-        investimentos.push(i);
-        avisar("✅ Adicionado!", "#22c55e");
-    } else {
-        investimentos[editInvest] = i;
-        avisar("✅ Atualizado!", "#38bdf8");
-    }
-    novoInvestimento();
-    atualizarTudo();
+    if (editInvest === null) { investimentos.push(i); avisar("✅ Adicionado!", "#22c55e"); }
+    else { investimentos[editInvest] = i; avisar("✅ Atualizado!", "#38bdf8"); }
+    novoInvestimento(); atualizarTudo();
 }
 
 function editarInvestimento(i){
     const v = investimentos[i];
-    nomeInv.value = v.nome; 
-    valorInv.value = v.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2});
-    tipoInv.value = v.tipo; 
-    dataInv.value = v.data;
-    editInvest = i;
-    btnInvest.innerText = "Atualizar";
-    btnNovoInvest.style.display = "block";
+    nomeInv.value = v.nome; valorInv.value = v.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    tipoInv.value = v.tipo; dataInv.value = v.data;
+    editInvest = i; btnInvest.innerText = "Atualizar"; btnNovoInvest.style.display = "block";
     document.getElementById("tituloInvest").scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function excluirInvestimento(i){
-    const nome = investimentos[i].nome;
-    perguntar(`Remover "${nome}"?`, () => {
-        investimentos.splice(i,1);
-        atualizarTudo();
-        avisar("🗑️ Removido!", "#ef4444");
-    });
+    perguntar(`Remover "${investimentos[i].nome}"?`, () => { investimentos.splice(i,1); atualizarTudo(); avisar("🗑️ Removido!", "#ef4444"); });
 }
 
 function novoInvestimento(){
-    editInvest = null;
-    nomeInv.value = ""; valorInv.value = ""; tipoInv.value = ""; dataInv.value = "";
-    btnInvest.innerText = "Salvar";
-    btnNovoInvest.style.display = "none";
+    editInvest = null; nomeInv.value = ""; valorInv.value = ""; tipoInv.value = ""; dataInv.value = "";
+    btnInvest.innerText = "Salvar"; btnNovoInvest.style.display = "none";
 }
 
+// FUNÇÕES LAZER
+function salvarLazer() {
+    const l = { nome: nomeLazer.value, valor: parseBRL(valorLazer.value), data: dataLazer.value };
+    if(!l.nome || l.valor <= 0 || !l.data){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
+    if (editLazer === null) { lazer.push(l); avisar("✅ Lazer salvo!", "#22c55e"); }
+    else { lazer[editLazer] = l; avisar("✅ Atualizado!", "#38bdf8"); }
+    novoLazer(); atualizarTudo();
+}
+
+function editarLazer(i) {
+    const v = lazer[i];
+    nomeLazer.value = v.nome; valorLazer.value = v.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    dataLazer.value = v.data;
+    editLazer = i; btnLazer.innerText = "Atualizar"; btnNovoLazer.style.display = "block";
+    document.getElementById("tituloLazer").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function excluirLazer(i) {
+    perguntar(`Remover "${lazer[i].nome}"?`, () => { lazer.splice(i,1); atualizarTudo(); avisar("🗑️ Removido!", "#ef4444"); });
+}
+
+function novoLazer() {
+    editLazer = null; nomeLazer.value = ""; valorLazer.value = ""; dataLazer.value = "";
+    btnLazer.innerText = "Salvar lazer"; btnNovoLazer.style.display = "none";
+}
+
+// LISTAGENS
 function listarDespesas() {
     listaDespesas.innerHTML = despesas.map((d, i) => `
         <tr>
             <td data-label="Nome">📝 ${d.nome}</td>
             <td data-label="Valor">💲 ${real(d.valor)}</td>
             <td data-label="%">${calcularPercentual(d.valor)}</td>
-            <td data-label="Tipo">
-                <span class="valor-tipo-estilizado">🧾 ${d.tipo}</span>
-            </td>
+            <td data-label="Tipo"><span class="valor-tipo-estilizado">🧾 ${d.tipo}</span></td>
             <td data-label="Venc.">📅 ${formatarDataBR(d.venc)}</td>
             <td data-label="Pag.">📅 ${formatarDataBR(d.pag)}</td>
-            <td data-label="Status" class="${d.status}">
-                ${d.status === "pago" ? "✅ Pago" : "❌ Não pago"}
-            </td>
-            <td class="acoes">
-                <button onclick="editarDespesa(${i})">Editar</button>
-                <button class="excluir" onclick="excluirDespesa(${i})">Excluir</button>
-            </td>
-        </tr>
-    `).join('');
+            <td data-label="Status" class="${d.status}">${d.status === "pago" ? "✅ Pago" : "❌ Não pago"}</td>
+            <td class="acoes"><button onclick="editarDespesa(${i})">Editar</button><button class="excluir" onclick="excluirDespesa(${i})">Excluir</button></td>
+        </tr>`).join('');
 }
-
 
 function listarInvestimentos(){
     listaInvestimentos.innerHTML = investimentos.map((i,idx)=>`
@@ -670,43 +673,54 @@ function listarInvestimentos(){
         </tr>`).join('');
 }
 
+function listarLazer() {
+    document.getElementById("listaLazer").innerHTML = lazer.map((l, idx) => `
+        <tr>
+            <td data-label="Nome">🍿 ${l.nome}</td>
+            <td data-label="Valor">💲 ${real(l.valor)}</td>
+            <td data-label="%">${calcularPercentual(l.valor)}</td>
+            <td data-label="Data">📅 ${formatarDataBR(l.data)}</td>
+            <td class="acoes"><button onclick="editarLazer(${idx})">Editar</button><button class="excluir" onclick="excluirLazer(${idx})">Excluir</button></td>
+        </tr>`).join('');
+}
+
+// RESUMO E CALCULOS
+// RESUMO E CALCULOS CORRIGIDOS
 function atualizarResumo(){
-    // 1. Cálculos de Despesas
+    // Cálculos de Despesas
     const dPagos = despesas.filter(d => d.status === "pago");
     const dPendentes = despesas.filter(d => d.status === "nao");
     
     const valorPago = dPagos.reduce((s, d) => s + d.valor, 0);
     const valorPendente = dPendentes.reduce((s, d) => s + d.valor, 0);
-    const valorTotalDesp = valorPago + valorPendente; // Total de contas do mês
+    const valorTotalDesp = valorPago + valorPendente;
 
-    // 2. Cálculos de Reservas e Investimentos
-    const iReservas = investimentos.filter(i => i.tipo === "reserva");
-    const iInvest = investimentos.filter(i => i.tipo === "investimento");
-    
-    const valorReservas = iReservas.reduce((s, i) => s + i.valor, 0);
-    const valorInvest = iInvest.reduce((s, i) => s + i.valor, 0);
+    // Cálculos de Investimentos/Reservas
+    const valorReservas = investimentos.filter(i => i.tipo === "reserva").reduce((s, i) => s + i.valor, 0);
+    const valorInvest = investimentos.filter(i => i.tipo === "investimento").reduce((s, i) => s + i.valor, 0);
     const valorTotalInv = valorReservas + valorInvest;
 
-    // 3. CÁLCULO DO SALDO (O ajuste principal aqui)
-    // Subtraímos TUDO do salário: despesas (pagas e pendentes) e investimentos
-    const saldo = salario - valorTotalDesp - valorTotalInv;
+    // Cálculos de Lazer
+    const valorTotalLazer = lazer.reduce((s, l) => s + l.valor, 0);
 
-    // 4. Lógica de Humor/Status
+    // O Saldo Real desconta TUDO o que foi planejado do salário
+    const saldo = salario - valorTotalDesp - valorTotalInv - valorTotalLazer;
+
+    // --- ATUALIZAÇÃO DA UI ---
+
+    // Humor/Status
     const statusDiv = document.getElementById("status-humor");
-    if (salario === 0 && despesas.length === 0) {
-        statusDiv.innerHTML = "";
-    } else if (saldo < 0) {
-        statusDiv.innerHTML = "Status: 😭";
-        statusDiv.style.color = "#ef4444";
-    } else if (saldo >= 0 && saldo <= 250) {
-        statusDiv.innerHTML = "Status: 😐";
-        statusDiv.style.color = "#f59e0b";
-    } else {
-        statusDiv.innerHTML = "Status: 😊";
-        statusDiv.style.color = "#22c55e";
+    if (salario === 0 && despesas.length === 0) { 
+        statusDiv.innerHTML = ""; 
+    } else if (saldo < 0) { 
+        statusDiv.innerHTML = "Status: 😭"; statusDiv.style.color = "#ef4444"; 
+    } else if (saldo >= 0 && saldo <= (salario * 0.1)) { // Alerta se sobrar menos de 10%
+        statusDiv.innerHTML = "Status: 😐"; statusDiv.style.color = "#f59e0b"; 
+    } else { 
+        statusDiv.innerHTML = "Status: 😊"; statusDiv.style.color = "#22c55e"; 
     }
 
-    // 5. Atualização da UI - Seção Despesas
+    // Seção Despesas
     document.getElementById("totalPago").innerText = real(valorPago);
     document.getElementById("percPago").innerText = calcularPercentual(valorPago);
     document.getElementById("qtdPago").innerText = dPagos.length;
@@ -719,80 +733,71 @@ function atualizarResumo(){
     document.getElementById("somaDespesasPerc").innerText = calcularPercentual(valorTotalDesp);
     document.getElementById("qtdTotalDespesas").innerText = despesas.length;
 
-    // 6. Atualização da UI - Seção Investimentos
+    // Seção Reservas/Investimentos
     document.getElementById("totalReservas").innerText = real(valorReservas);
     document.getElementById("percReservas").innerText = calcularPercentual(valorReservas);
-    document.getElementById("qtdReservas").innerText = iReservas.length;
+    document.getElementById("qtdReservas").innerText = investimentos.filter(i => i.tipo === "reserva").length;
 
     document.getElementById("totalInvestido").innerText = real(valorInvest);
     document.getElementById("percInvestido").innerText = calcularPercentual(valorInvest);
-    document.getElementById("qtdInvestido").innerText = iInvest.length;
+    document.getElementById("qtdInvestido").innerText = investimentos.filter(i => i.tipo === "investimento").length;
 
     document.getElementById("somaInvestValor").innerText = real(valorTotalInv);
     document.getElementById("somaInvestPerc").innerText = calcularPercentual(valorTotalInv);
     document.getElementById("qtdTotalInvest").innerText = investimentos.length;
 
-    // 7. Atualização do Cabeçalho e Saldo Final
+    // Seção Lazer
+    document.getElementById("somaLazerValor").innerText = real(valorTotalLazer);
+    document.getElementById("somaLazerPerc").innerText = calcularPercentual(valorTotalLazer);
+    document.getElementById("qtdTotalLazer").innerText = lazer.length;
+
+    // Saldo Final
     displaySalario.innerText = real(salario);
     saldoFinal.innerText = real(saldo);
     saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
-    
-    let percLivreValor = (salario > 0) ? (saldo / salario) * 100 : 0;
-    percLivre.innerText = percLivreValor.toFixed(2) + "%";
+    percLivre.innerText = calcularPercentual(saldo);
 }
 
 function atualizarTudo(){
-    listarDespesas();
-    listarInvestimentos();
-    atualizarResumo();
-    salvarDados();
+    listarDespesas(); listarInvestimentos(); listarLazer();
+    atualizarResumo(); salvarDados();
 }
 
-/* ================= BLOQUINHOS INFORMATIVOS ================= */
+// BLOQUINHOS
 const criarBloquinho = () => {
     const el = document.createElement("div");
     el.style.cssText = "position:absolute; background:#1e293b; border:2px solid #38bdf8; border-radius:8px; padding:10px; z-index:9999; display:none; max-height:200px; overflow-y:auto; width:300px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);";
-    document.body.appendChild(el);
-    return el;
+    document.body.appendChild(el); return el;
 };
-
-const bDesp = criarBloquinho();
-const bInv = criarBloquinho();
+const bDesp = criarBloquinho(); const bInv = criarBloquinho(); const bLazer = criarBloquinho();
 
 nomeDespesa.addEventListener("focus", () => {
     let html = "<span class='bloquinho-titulo'>contas já cadastradas:</span>";
-    if (despesas.length === 0) {
-        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma conta registrada</div>";
-    } else {
-        html += despesas.map(d => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${d.nome}</span><span style='color:#38bdf8'>${real(d.valor)}</span></div>`).join('');
-    }
-    bDesp.innerHTML = html;
-    const r = nomeDespesa.getBoundingClientRect();
+    html += despesas.length ? despesas.map(d => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${d.nome}</span><span style='color:#38bdf8'>${real(d.valor)}</span></div>`).join('') : "<div style='color:#64748b; font-size:13px'>Vazio</div>";
+    bDesp.innerHTML = html; const r = nomeDespesa.getBoundingClientRect();
     bDesp.style.top = r.bottom + window.scrollY + 5 + "px"; bDesp.style.left = r.left + window.scrollX + "px"; bDesp.style.display = "block";
 });
 nomeDespesa.addEventListener("blur", () => setTimeout(() => bDesp.style.display = "none", 200));
 
 nomeInv.addEventListener("focus", () => {
-    let html = "<span class='bloquinho-titulo'>reservas e investimentos já cadastrados:</span>";
-    if (investimentos.length === 0) {
-        html += "<div style='color:#64748b; font-style:italic; font-size:13px'>Nenhuma reserva ou investimento registrado</div>";
-    } else {
-        html += investimentos.map(i => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${i.nome}</span><span style='color:#38bdf8'>${real(i.valor)}</span></div>`).join('');
-    }
-    bInv.innerHTML = html;
-    const r = nomeInv.getBoundingClientRect();
+    let html = "<span class='bloquinho-titulo'>cadastrados:</span>";
+    html += investimentos.length ? investimentos.map(i => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${i.nome}</span><span style='color:#38bdf8'>${real(i.valor)}</span></div>`).join('') : "<div style='color:#64748b; font-size:13px'>Vazio</div>";
+    bInv.innerHTML = html; const r = nomeInv.getBoundingClientRect();
     bInv.style.top = r.bottom + window.scrollY + 5 + "px"; bInv.style.left = r.left + window.scrollX + "px"; bInv.style.display = "block";
 });
 nomeInv.addEventListener("blur", () => setTimeout(() => bInv.style.display = "none", 200));
 
+nomeLazer.addEventListener("focus", () => {
+    let html = "<span class='bloquinho-titulo'>lazer cadastrado:</span>";
+    html += lazer.length ? lazer.map(l => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${l.nome}</span><span style='color:#38bdf8'>${real(l.valor)}</span></div>`).join('') : "<div style='color:#64748b; font-size:13px'>Vazio</div>";
+    bLazer.innerHTML = html; const r = nomeLazer.getBoundingClientRect();
+    bLazer.style.top = r.bottom + window.scrollY + 5 + "px"; bLazer.style.left = r.left + window.scrollX + "px"; bLazer.style.display = "block";
+});
+nomeLazer.addEventListener("blur", () => setTimeout(() => bLazer.style.display = "none", 200));
+
+// PERSISTÊNCIA
 function salvarDados() {
-    const dados = {
-        salario,
-        despesas,
-        investimentos,
-        mesSelecionado: selectMes.value,
-        anoSelecionado: selectAno.value
-    };
+    const dados = { salario, despesas, investimentos, lazer, mesSelecionado: selectMes.value, anoSelecionado: selectAno.value };
     localStorage.setItem("controleFinanceiro", JSON.stringify(dados));
 }
 
@@ -803,54 +808,38 @@ function carregarDados() {
     salario = dados.salario || 0;
     despesas = dados.despesas || [];
     investimentos = dados.investimentos || [];
+    lazer = dados.lazer || [];
     if (dados.mesSelecionado) selectMes.value = dados.mesSelecionado;
     if (dados.anoSelecionado) selectAno.value = dados.anoSelecionado;
     atualizarTudo();
 }
 
-carregarDados();
-
-selectMes.addEventListener("change", salvarDados);
-selectAno.addEventListener("change", salvarDados);
-
 function zerarTudo() {
-    perguntar("⚠️ Isso vai apagar TODOS os dados salvos. Deseja continuar?", () => {
-        salario = 0;
-        despesas = [];
-        investimentos = [];
-        selectMes.value = "";
-        selectAno.value = "";
+    perguntar("⚠️ Isso vai apagar TODOS os dados. Deseja continuar?", () => {
+        salario = 0; despesas = []; investimentos = []; lazer = [];
+        selectMes.value = ""; selectAno.value = "";
         localStorage.removeItem("controleFinanceiro");
-        atualizarTudo();
-        avisar("🧹 Tudo foi zerado com sucesso!", "#ef4444");
+        atualizarTudo(); avisar("🧹 Tudo zerado!", "#ef4444");
     });
 }
 
-let icone_menu = document.getElementById('icone-menu')
-let expandir_inputs_despesa = document.getElementById('expandir-inputs-dispesa')
+// MENUS EXPANSIVEIS
+document.getElementById('icone-menu').onclick = () => {
+    let d = document.getElementById('expandir-inputs-dispesa');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+};
+document.getElementById('menu-investimento').onclick = () => {
+    let d = document.getElementById('expandir-investimento');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+};
+document.getElementById('menu-lazer').onclick = () => {
+    let d = document.getElementById('expandir-lazer');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+};
 
-icone_menu.addEventListener('click', expandir_despesas)
-
-function expandir_despesas() {
-    if (expandir_inputs_despesa.style.display === 'block') {
-        expandir_inputs_despesa.style.display = 'none'
-    } else {
-        expandir_inputs_despesa.style.display = 'block'
-    }
-}
-
-let menu_investimento = document.getElementById('menu-investimento')
-let expandir_investimento = document.getElementById('expandir-investimento')
-
-menu_investimento.addEventListener('click', expandir_inputs_investimento)
-
-function expandir_inputs_investimento() {
-    if (expandir_investimento.style.display === 'block') {
-        expandir_investimento.style.display = 'none'
-    } else {
-        expandir_investimento.style.display = 'block'
-    }
-}
+carregarDados();
+selectMes.onchange = salvarDados;
+selectAno.onchange = salvarDados;
 </script>
 </body>
 </html>
