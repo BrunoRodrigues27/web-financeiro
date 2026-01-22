@@ -671,38 +671,42 @@ function listarInvestimentos(){
 }
 
 function atualizarResumo(){
+    // 1. Cálculos de Despesas
     const dPagos = despesas.filter(d => d.status === "pago");
     const dPendentes = despesas.filter(d => d.status === "nao");
+    
     const valorPago = dPagos.reduce((s, d) => s + d.valor, 0);
     const valorPendente = dPendentes.reduce((s, d) => s + d.valor, 0);
-    const valorTotalDesp = valorPago + valorPendente;
+    const valorTotalDesp = valorPago + valorPendente; // Total de contas do mês
 
+    // 2. Cálculos de Reservas e Investimentos
     const iReservas = investimentos.filter(i => i.tipo === "reserva");
     const iInvest = investimentos.filter(i => i.tipo === "investimento");
+    
     const valorReservas = iReservas.reduce((s, i) => s + i.valor, 0);
     const valorInvest = iInvest.reduce((s, i) => s + i.valor, 0);
     const valorTotalInv = valorReservas + valorInvest;
 
-    const saldo = salario - valorPago - valorReservas - valorInvest;
+    // 3. CÁLCULO DO SALDO (O ajuste principal aqui)
+    // Subtraímos TUDO do salário: despesas (pagas e pendentes) e investimentos
+    const saldo = salario - valorTotalDesp - valorTotalInv;
 
-    // --- NOVA LÓGICA DE STATUS PEDIDA ---
+    // 4. Lógica de Humor/Status
     const statusDiv = document.getElementById("status-humor");
     if (salario === 0 && despesas.length === 0) {
         statusDiv.innerHTML = "";
     } else if (saldo < 0) {
-        // Negativo: Vermelho + Chorando
         statusDiv.innerHTML = "Status: 😭";
         statusDiv.style.color = "#ef4444";
     } else if (saldo >= 0 && saldo <= 250) {
-        // Entre 0 e 250: Amarelo + Cara normal
         statusDiv.innerHTML = "Status: 😐";
         statusDiv.style.color = "#f59e0b";
     } else {
-        // Acima de 250: Verde + Sorrindo
         statusDiv.innerHTML = "Status: 😊";
         statusDiv.style.color = "#22c55e";
     }
 
+    // 5. Atualização da UI - Seção Despesas
     document.getElementById("totalPago").innerText = real(valorPago);
     document.getElementById("percPago").innerText = calcularPercentual(valorPago);
     document.getElementById("qtdPago").innerText = dPagos.length;
@@ -715,6 +719,7 @@ function atualizarResumo(){
     document.getElementById("somaDespesasPerc").innerText = calcularPercentual(valorTotalDesp);
     document.getElementById("qtdTotalDespesas").innerText = despesas.length;
 
+    // 6. Atualização da UI - Seção Investimentos
     document.getElementById("totalReservas").innerText = real(valorReservas);
     document.getElementById("percReservas").innerText = calcularPercentual(valorReservas);
     document.getElementById("qtdReservas").innerText = iReservas.length;
@@ -727,6 +732,7 @@ function atualizarResumo(){
     document.getElementById("somaInvestPerc").innerText = calcularPercentual(valorTotalInv);
     document.getElementById("qtdTotalInvest").innerText = investimentos.length;
 
+    // 7. Atualização do Cabeçalho e Saldo Final
     displaySalario.innerText = real(salario);
     saldoFinal.innerText = real(saldo);
     saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
