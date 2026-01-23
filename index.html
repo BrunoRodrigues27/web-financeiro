@@ -153,6 +153,12 @@ td::before {
     position: relative;
 }
 
+/* Adicionada apenas a classe para a borda vermelha sem mexer nos outros estilos */
+.resumo-card.destaque.saidas-estilo {
+    border-color: #ef4444;
+    margin-bottom: 10px;
+}
+
 #status-humor {
     position: absolute;
     top: 10px;
@@ -274,6 +280,44 @@ button.salvar {
     margin-top: 20px;
     margin-bottom: 20px;
 }
+
+.resumo-totais {
+    margin-top: 20px;
+    padding: 12px;
+    border: 2px dashed #334155;
+    border-radius: 10px;
+    background: #020617;
+}
+
+.resumo-total-linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    font-size: 15px;
+    border-bottom: 1px dashed #1e293b;
+}
+
+.resumo-total-linha:last-child {
+    border-bottom: none;
+}
+
+.resumo-total-linha span {
+    color: #94a3b8;
+}
+
+.resumo-total-linha strong {
+    color: #e5e7eb;
+}
+
+.resumo-total-linha.destaque strong {
+    color: #22c55e;
+    font-size: 16px;
+}
+
+/* Estilo antigo das saidas removido para usar o padrão destaque */
+.card-status { display: none; }
+
 </style>
 </head>
 
@@ -495,17 +539,28 @@ button.salvar {
             <strong class="qtd-label" id="qtdTotalMetasLazer">0</strong>
         </div>
     </div>
+</div>
 
-    <div class="resumo-card destaque">
-        <div id="status-humor"></div>
-        <h3>💵 Saldo</h3>
-        <div class="resumo-linha" style="grid-template-columns: 1fr 110px 65px;">
-            <span>Disponível</span>
-            <strong id="saldoFinal" class="positivo">R$ 0,00</strong>
-            <strong id="percLivre">0%</strong>
-        </div>
+<div class="resumo-card destaque saidas-estilo">
+    <h3 style="color:#ef4444">📉 Saídas</h3>
+    <div class="resumo-linha">
+        <span>Total de saidas</span>
+        <strong id="saidaTotal" style="color:#ef4444">R$ 0,00</strong>
+        <strong id="saidaPercentual">0%</strong>
+        <strong class="qtd-label" id="saidaQuantidade">0</strong>
     </div>
 </div>
+
+<div class="resumo-card destaque">
+    <div id="status-humor"></div>
+    <h3>💵 Saldo</h3>
+    <div class="resumo-linha">
+        <span>Disponível</span>
+        <strong id="saldoFinal" class="positivo">R$ 0,00</strong>
+        <strong id="percLivre">0%</strong>
+        <span></span> </div>
+</div>
+
 </div>
 </div>
 
@@ -757,25 +812,49 @@ function listarLazer() {
 }
 
 function atualizarResumo(){
+    // 1. Cálculos de Despesas
     const dPagos = despesas.filter(d => d.status === "pago");
     const dPendentes = despesas.filter(d => d.status === "nao");
-    
     const valorPago = dPagos.reduce((s, d) => s + d.valor, 0);
     const valorPendente = dPendentes.reduce((s, d) => s + d.valor, 0);
     const valorTotalDesp = valorPago + valorPendente;
 
+    // 2. Cálculos de Reservas e Investimentos
     const valorReservas = investimentos.filter(i => i.tipo === "reserva").reduce((s, i) => s + i.valor, 0);
     const valorInvest = investimentos.filter(i => i.tipo === "investimento").reduce((s, i) => s + i.valor, 0);
     const valorTotalInv = valorReservas + valorInvest;
 
+    // 3. Cálculos de Metas e Lazer
     const valorTotalMetas = metas.reduce((s, m) => s + m.valor, 0);
     const valorTotalLazer = lazer.reduce((s, l) => s + l.valor, 0);
     const somaMetasLazer = valorTotalMetas + valorTotalLazer;
 
-    const saldo = salario - valorTotalDesp - valorTotalInv - somaMetasLazer;
+    // --- CORREÇÃO AQUI: TOTAL DE SAÍDAS ---
+    // Agora "Saídas" é a soma de TUDO que não é salário
+    const valorTotalSaidas = valorTotalDesp + valorTotalInv + somaMetasLazer;
+    const totalItensSaida = despesas.length + investimentos.length + metas.length + lazer.length;
 
+    // 4. Atualização da Caixa de Saídas (Vermelha)
+    const saidaTotalEl = document.getElementById("saidaTotal");
+    const saidaPercentualEl = document.getElementById("saidaPercentual");
+    const saidaQuantidadeEl = document.getElementById("saidaQuantidade");
+
+    if(saidaTotalEl) saidaTotalEl.innerText = real(valorTotalSaidas);
+    if(saidaPercentualEl) saidaPercentualEl.innerText = calcularPercentual(valorTotalSaidas);
+    if(saidaQuantidadeEl) saidaQuantidadeEl.innerText = totalItensSaida;
+
+    // 5. Cálculo do Saldo Disponível
+    const saldo = salario - valorTotalSaidas;
+
+    // 6. Atualização da Caixa de Saldo (Azul)
+    displaySalario.innerText = real(salario);
+    saldoFinal.innerText = real(saldo);
+    saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
+    percLivre.innerText = calcularPercentual(saldo);
+
+    // 7. Status Humor
     const statusDiv = document.getElementById("status-humor");
-    if (salario === 0 && despesas.length === 0) { 
+    if (salario === 0 && totalItensSaida === 0) { 
         statusDiv.innerHTML = ""; 
     } else if (saldo < 0) { 
         statusDiv.innerHTML = "Status: 😭"; statusDiv.style.color = "#ef4444"; 
@@ -785,7 +864,8 @@ function atualizarResumo(){
         statusDiv.innerHTML = "Status: 😊"; statusDiv.style.color = "#22c55e"; 
     }
 
-    // Atualização UI Despesas
+    // 8. Atualização dos Cards Individuais (os blocos de cima)
+    // Despesas
     document.getElementById("totalPago").innerText = real(valorPago);
     document.getElementById("percPago").innerText = calcularPercentual(valorPago);
     document.getElementById("qtdPago").innerText = dPagos.length;
@@ -796,7 +876,7 @@ function atualizarResumo(){
     document.getElementById("somaDespesasPerc").innerText = calcularPercentual(valorTotalDesp);
     document.getElementById("qtdTotalDespesas").innerText = despesas.length;
 
-    // Atualização UI Reservas/Invest
+    // Investimentos
     document.getElementById("totalReservas").innerText = real(valorReservas);
     document.getElementById("percReservas").innerText = calcularPercentual(valorReservas);
     document.getElementById("qtdReservas").innerText = investimentos.filter(i => i.tipo === "reserva").length;
@@ -807,24 +887,16 @@ function atualizarResumo(){
     document.getElementById("somaInvestPerc").innerText = calcularPercentual(valorTotalInv);
     document.getElementById("qtdTotalInvest").innerText = investimentos.length;
 
-    // ATUALIZAÇÃO UI METAS E LAZER (AGRUPADOS)
+    // Metas/Lazer
     document.getElementById("resumoMetasValor").innerText = real(valorTotalMetas);
     document.getElementById("resumoMetasPerc").innerText = calcularPercentual(valorTotalMetas);
     document.getElementById("qtdResumoMetas").innerText = metas.length;
-
     document.getElementById("resumoLazerValor").innerText = real(valorTotalLazer);
     document.getElementById("resumoLazerPerc").innerText = calcularPercentual(valorTotalLazer);
     document.getElementById("qtdResumoLazer").innerText = lazer.length;
-
     document.getElementById("somaMetasLazerValor").innerText = real(somaMetasLazer);
     document.getElementById("somaMetasLazerPerc").innerText = calcularPercentual(somaMetasLazer);
     document.getElementById("qtdTotalMetasLazer").innerText = metas.length + lazer.length;
-
-    // Saldo Final
-    displaySalario.innerText = real(salario);
-    saldoFinal.innerText = real(saldo);
-    saldoFinal.className = saldo >= 0 ? "positivo" : "negativo";
-    percLivre.innerText = calcularPercentual(saldo);
 }
 
 function atualizarTudo(){
@@ -916,9 +988,16 @@ document.getElementById('menu-lazer').onclick = () => {
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
 };
 
+
 carregarDados();
 selectMes.onchange = salvarDados;
 selectAno.onchange = salvarDados;
+
+totalResumoDespesas.innerText = somaDespesasValor.innerText;
+totalResumoInvest.innerText = somaInvestValor.innerText;
+totalResumoMetas.innerText = resumoMetasValor.innerText;
+totalResumoLazer.innerText = resumoLazerValor.innerText;
+totalResumoSaldo.innerText = saldoFinal.innerText;
 </script>
 </body>
 </html>
