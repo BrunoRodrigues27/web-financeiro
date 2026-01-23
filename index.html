@@ -858,7 +858,7 @@ function atualizarResumo(){
         statusDiv.innerHTML = ""; 
     } else if (saldo < 0) { 
         statusDiv.innerHTML = "Status: 😭"; statusDiv.style.color = "#ef4444"; 
-    } else if (saldo >= 0 && saldo <= (salario * 0.1)) {
+    } else if (saldo >= 0 && saldo <= 250) {
         statusDiv.innerHTML = "Status: 😐"; statusDiv.style.color = "#f59e0b"; 
     } else { 
         statusDiv.innerHTML = "Status: 😊"; statusDiv.style.color = "#22c55e"; 
