@@ -259,6 +259,7 @@ span.icone {
 
 div#expandir-inputs-dispesa,
 div#expandir-investimento,
+div#expandir-metas,
 div#expandir-lazer {
     display: none;
 }
@@ -387,6 +388,26 @@ button.salvar {
 </div>
 
 <div class="section">
+<h2 id="tituloMetas">🎯 Metas</h2>
+<input id="nomeMeta" placeholder="🎯 O que você quer comprar/alcançar?" maxlength="40" autocomplete="off">
+<div class="caixa-menu">
+    <span id="menu-metas" class="icone material-symbols-outlined">menu</span>
+</div>
+<div id="expandir-metas">
+    <input id="valorMeta" type="text" placeholder="💲 Valor para guardar este mês" oninput="mascaraMoeda(this)" maxlength="9">
+    <label>📅 Data limite ou do aporte</label>
+    <input type="date" id="dataMeta">
+    <div class="botoes">
+        <button class="salvar" id="btnMeta" onclick="salvarMeta()">Salvar meta</button>
+        <button id="btnNovaMeta" class="secundario" onclick="novaMeta()" style="display:none">Nova</button>
+    </div>
+    <div class="lista-geral">
+        <table><tbody id="listaMetas"></tbody></table>
+    </div>
+</div>
+</div>
+
+<div class="section">
 <h2 id="tituloLazer">🍿 Lazer</h2>
 <input id="nomeLazer" placeholder="🍿 Nome da atividade ou gasto de lazer" maxlength="40" autocomplete="off">
 <div class="caixa-menu">
@@ -454,12 +475,24 @@ button.salvar {
     </div>
 
     <div class="resumo-card">
-        <h3>🍿 Lazer</h3>
+        <h3>🎯 Metas | 🍿 Lazer</h3>
+        <div class="resumo-linha">
+            <span>🎯 Metas</span>
+            <strong id="resumoMetasValor">R$ 0,00</strong>
+            <strong id="resumoMetasPerc">0%</strong>
+            <strong class="qtd-label" id="qtdResumoMetas">0</strong>
+        </div>
+        <div class="resumo-linha">
+            <span>🍿 Lazer</span>
+            <strong id="resumoLazerValor">R$ 0,00</strong>
+            <strong id="resumoLazerPerc">0%</strong>
+            <strong class="qtd-label" id="qtdResumoLazer">0</strong>
+        </div>
         <div class="resumo-linha total-grupo">
             <span>Soma Total</span>
-            <strong id="somaLazerValor">R$ 0,00</strong>
-            <strong id="somaLazerPerc">0%</strong>
-            <strong class="qtd-label" id="qtdTotalLazer">0</strong>
+            <strong id="somaMetasLazerValor">R$ 0,00</strong>
+            <strong id="somaMetasLazerPerc">0%</strong>
+            <strong class="qtd-label" id="qtdTotalMetasLazer">0</strong>
         </div>
     </div>
 
@@ -480,9 +513,11 @@ button.salvar {
 let salario = 0;
 let despesas = [];
 let investimentos = [];
+let metas = [];
 let lazer = [];
 let editDespesa = null;
 let editInvest = null;
+let editMeta = null;
 let editLazer = null;
 
 function mascaraMoeda(i) {
@@ -620,6 +655,32 @@ function novoInvestimento(){
     btnInvest.innerText = "Salvar"; btnNovoInvest.style.display = "none";
 }
 
+// FUNÇÕES METAS
+function salvarMeta() {
+    const m = { nome: nomeMeta.value, valor: parseBRL(valorMeta.value), data: dataMeta.value };
+    if(!m.nome || m.valor <= 0 || !m.data){ avisar("⚠️ Verifique os campos.", "#f59e0b"); return; }
+    if (editMeta === null) { metas.push(m); avisar("🎯 Meta salva!", "#22c55e"); }
+    else { metas[editMeta] = m; avisar("🎯 Atualizada!", "#38bdf8"); }
+    novaMeta(); atualizarTudo();
+}
+
+function editarMeta(i) {
+    const v = metas[i];
+    nomeMeta.value = v.nome; valorMeta.value = v.valor.toLocaleString('pt-BR', {minimumFractionDigits: 2});
+    dataMeta.value = v.data;
+    editMeta = i; btnMeta.innerText = "Atualizar"; btnNovaMeta.style.display = "block";
+    document.getElementById("tituloMetas").scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+function excluirMeta(i) {
+    perguntar(`Remover "${metas[i].nome}"?`, () => { metas.splice(i,1); atualizarTudo(); avisar("🗑️ Removida!", "#ef4444"); });
+}
+
+function novaMeta() {
+    editMeta = null; nomeMeta.value = ""; valorMeta.value = ""; dataMeta.value = "";
+    btnMeta.innerText = "Salvar meta"; btnNovaMeta.style.display = "none";
+}
+
 // FUNÇÕES LAZER
 function salvarLazer() {
     const l = { nome: nomeLazer.value, valor: parseBRL(valorLazer.value), data: dataLazer.value };
@@ -673,6 +734,17 @@ function listarInvestimentos(){
         </tr>`).join('');
 }
 
+function listarMetas() {
+    document.getElementById("listaMetas").innerHTML = metas.map((m, idx) => `
+        <tr>
+            <td data-label="Nome">🎯 ${m.nome}</td>
+            <td data-label="Valor">💲 ${real(m.valor)}</td>
+            <td data-label="%">${calcularPercentual(m.valor)}</td>
+            <td data-label="Data">📅 ${formatarDataBR(m.data)}</td>
+            <td class="acoes"><button onclick="editarMeta(${idx})">Editar</button><button class="excluir" onclick="excluirMeta(${idx})">Excluir</button></td>
+        </tr>`).join('');
+}
+
 function listarLazer() {
     document.getElementById("listaLazer").innerHTML = lazer.map((l, idx) => `
         <tr>
@@ -684,10 +756,7 @@ function listarLazer() {
         </tr>`).join('');
 }
 
-// RESUMO E CALCULOS
-// RESUMO E CALCULOS CORRIGIDOS
 function atualizarResumo(){
-    // Cálculos de Despesas
     const dPagos = despesas.filter(d => d.status === "pago");
     const dPendentes = despesas.filter(d => d.status === "nao");
     
@@ -695,61 +764,61 @@ function atualizarResumo(){
     const valorPendente = dPendentes.reduce((s, d) => s + d.valor, 0);
     const valorTotalDesp = valorPago + valorPendente;
 
-    // Cálculos de Investimentos/Reservas
     const valorReservas = investimentos.filter(i => i.tipo === "reserva").reduce((s, i) => s + i.valor, 0);
     const valorInvest = investimentos.filter(i => i.tipo === "investimento").reduce((s, i) => s + i.valor, 0);
     const valorTotalInv = valorReservas + valorInvest;
 
-    // Cálculos de Lazer
+    const valorTotalMetas = metas.reduce((s, m) => s + m.valor, 0);
     const valorTotalLazer = lazer.reduce((s, l) => s + l.valor, 0);
+    const somaMetasLazer = valorTotalMetas + valorTotalLazer;
 
-    // O Saldo Real desconta TUDO o que foi planejado do salário
-    const saldo = salario - valorTotalDesp - valorTotalInv - valorTotalLazer;
+    const saldo = salario - valorTotalDesp - valorTotalInv - somaMetasLazer;
 
-    // --- ATUALIZAÇÃO DA UI ---
-
-    // Humor/Status
     const statusDiv = document.getElementById("status-humor");
     if (salario === 0 && despesas.length === 0) { 
         statusDiv.innerHTML = ""; 
     } else if (saldo < 0) { 
         statusDiv.innerHTML = "Status: 😭"; statusDiv.style.color = "#ef4444"; 
-    } else if (saldo >= 0 && saldo <= (salario * 0.1)) { // Alerta se sobrar menos de 10%
+    } else if (saldo >= 0 && saldo <= (salario * 0.1)) {
         statusDiv.innerHTML = "Status: 😐"; statusDiv.style.color = "#f59e0b"; 
     } else { 
         statusDiv.innerHTML = "Status: 😊"; statusDiv.style.color = "#22c55e"; 
     }
 
-    // Seção Despesas
+    // Atualização UI Despesas
     document.getElementById("totalPago").innerText = real(valorPago);
     document.getElementById("percPago").innerText = calcularPercentual(valorPago);
     document.getElementById("qtdPago").innerText = dPagos.length;
-
     document.getElementById("totalPendente").innerText = real(valorPendente);
     document.getElementById("percPendente").innerText = calcularPercentual(valorPendente);
     document.getElementById("qtdPendente").innerText = dPendentes.length;
-
     document.getElementById("somaDespesasValor").innerText = real(valorTotalDesp);
     document.getElementById("somaDespesasPerc").innerText = calcularPercentual(valorTotalDesp);
     document.getElementById("qtdTotalDespesas").innerText = despesas.length;
 
-    // Seção Reservas/Investimentos
+    // Atualização UI Reservas/Invest
     document.getElementById("totalReservas").innerText = real(valorReservas);
     document.getElementById("percReservas").innerText = calcularPercentual(valorReservas);
     document.getElementById("qtdReservas").innerText = investimentos.filter(i => i.tipo === "reserva").length;
-
     document.getElementById("totalInvestido").innerText = real(valorInvest);
     document.getElementById("percInvestido").innerText = calcularPercentual(valorInvest);
     document.getElementById("qtdInvestido").innerText = investimentos.filter(i => i.tipo === "investimento").length;
-
     document.getElementById("somaInvestValor").innerText = real(valorTotalInv);
     document.getElementById("somaInvestPerc").innerText = calcularPercentual(valorTotalInv);
     document.getElementById("qtdTotalInvest").innerText = investimentos.length;
 
-    // Seção Lazer
-    document.getElementById("somaLazerValor").innerText = real(valorTotalLazer);
-    document.getElementById("somaLazerPerc").innerText = calcularPercentual(valorTotalLazer);
-    document.getElementById("qtdTotalLazer").innerText = lazer.length;
+    // ATUALIZAÇÃO UI METAS E LAZER (AGRUPADOS)
+    document.getElementById("resumoMetasValor").innerText = real(valorTotalMetas);
+    document.getElementById("resumoMetasPerc").innerText = calcularPercentual(valorTotalMetas);
+    document.getElementById("qtdResumoMetas").innerText = metas.length;
+
+    document.getElementById("resumoLazerValor").innerText = real(valorTotalLazer);
+    document.getElementById("resumoLazerPerc").innerText = calcularPercentual(valorTotalLazer);
+    document.getElementById("qtdResumoLazer").innerText = lazer.length;
+
+    document.getElementById("somaMetasLazerValor").innerText = real(somaMetasLazer);
+    document.getElementById("somaMetasLazerPerc").innerText = calcularPercentual(somaMetasLazer);
+    document.getElementById("qtdTotalMetasLazer").innerText = metas.length + lazer.length;
 
     // Saldo Final
     displaySalario.innerText = real(salario);
@@ -759,17 +828,16 @@ function atualizarResumo(){
 }
 
 function atualizarTudo(){
-    listarDespesas(); listarInvestimentos(); listarLazer();
+    listarDespesas(); listarInvestimentos(); listarMetas(); listarLazer();
     atualizarResumo(); salvarDados();
 }
 
-// BLOQUINHOS
 const criarBloquinho = () => {
     const el = document.createElement("div");
     el.style.cssText = "position:absolute; background:#1e293b; border:2px solid #38bdf8; border-radius:8px; padding:10px; z-index:9999; display:none; max-height:200px; overflow-y:auto; width:300px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);";
     document.body.appendChild(el); return el;
 };
-const bDesp = criarBloquinho(); const bInv = criarBloquinho(); const bLazer = criarBloquinho();
+const bDesp = criarBloquinho(); const bInv = criarBloquinho(); const bMeta = criarBloquinho(); const bLazer = criarBloquinho();
 
 nomeDespesa.addEventListener("focus", () => {
     let html = "<span class='bloquinho-titulo'>contas já cadastradas:</span>";
@@ -787,6 +855,14 @@ nomeInv.addEventListener("focus", () => {
 });
 nomeInv.addEventListener("blur", () => setTimeout(() => bInv.style.display = "none", 200));
 
+nomeMeta.addEventListener("focus", () => {
+    let html = "<span class='bloquinho-titulo'>Metas salvas:</span>";
+    html += metas.length ? metas.map(m => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${m.nome}</span><span style='color:#38bdf8'>${real(m.valor)}</span></div>`).join('') : "<div style='color:#64748b; font-size:13px'>Vazio</div>";
+    bMeta.innerHTML = html; const r = nomeMeta.getBoundingClientRect();
+    bMeta.style.top = r.bottom + window.scrollY + 5 + "px"; bMeta.style.left = r.left + window.scrollX + "px"; bMeta.style.display = "block";
+});
+nomeMeta.addEventListener("blur", () => setTimeout(() => bMeta.style.display = "none", 200));
+
 nomeLazer.addEventListener("focus", () => {
     let html = "<span class='bloquinho-titulo'>lazer cadastrado:</span>";
     html += lazer.length ? lazer.map(l => `<div style='display:flex; justify-content:space-between; margin-bottom:5px; font-size:13px'><span>${l.nome}</span><span style='color:#38bdf8'>${real(l.valor)}</span></div>`).join('') : "<div style='color:#64748b; font-size:13px'>Vazio</div>";
@@ -795,9 +871,8 @@ nomeLazer.addEventListener("focus", () => {
 });
 nomeLazer.addEventListener("blur", () => setTimeout(() => bLazer.style.display = "none", 200));
 
-// PERSISTÊNCIA
 function salvarDados() {
-    const dados = { salario, despesas, investimentos, lazer, mesSelecionado: selectMes.value, anoSelecionado: selectAno.value };
+    const dados = { salario, despesas, investimentos, metas, lazer, mesSelecionado: selectMes.value, anoSelecionado: selectAno.value };
     localStorage.setItem("controleFinanceiro", JSON.stringify(dados));
 }
 
@@ -808,6 +883,7 @@ function carregarDados() {
     salario = dados.salario || 0;
     despesas = dados.despesas || [];
     investimentos = dados.investimentos || [];
+    metas = dados.metas || [];
     lazer = dados.lazer || [];
     if (dados.mesSelecionado) selectMes.value = dados.mesSelecionado;
     if (dados.anoSelecionado) selectAno.value = dados.anoSelecionado;
@@ -816,20 +892,23 @@ function carregarDados() {
 
 function zerarTudo() {
     perguntar("⚠️ Isso vai apagar TODOS os dados. Deseja continuar?", () => {
-        salario = 0; despesas = []; investimentos = []; lazer = [];
+        salario = 0; despesas = []; investimentos = []; metas = []; lazer = [];
         selectMes.value = ""; selectAno.value = "";
         localStorage.removeItem("controleFinanceiro");
         atualizarTudo(); avisar("🧹 Tudo zerado!", "#ef4444");
     });
 }
 
-// MENUS EXPANSIVEIS
 document.getElementById('icone-menu').onclick = () => {
     let d = document.getElementById('expandir-inputs-dispesa');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
 };
 document.getElementById('menu-investimento').onclick = () => {
     let d = document.getElementById('expandir-investimento');
+    d.style.display = d.style.display === 'block' ? 'none' : 'block';
+};
+document.getElementById('menu-metas').onclick = () => {
+    let d = document.getElementById('expandir-metas');
     d.style.display = d.style.display === 'block' ? 'none' : 'block';
 };
 document.getElementById('menu-lazer').onclick = () => {
