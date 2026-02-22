@@ -3,68 +3,66 @@
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body {
-    margin: 0;
-    background: black;
-    color: white;
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    height: 100vh;
-  }
+body {
+  margin: 0;
+  background: #000;
+  color: white;
+  font-family: Arial;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
 
-  .top-bar {
-    padding: 10px;
-    background: #111;
-    text-align: center;
-  }
+.top {
+  padding: 12px;
+  text-align: center;
+  background: #111;
+}
 
-  .container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    touch-action: none;
-  }
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background: #2979ff;
+  color: white;
+}
 
-  video {
-    max-width: 100%;
-    max-height: 100%;
-    transform-origin: center center;
-    transition: transform 0.05s linear;
-  }
+input {
+  display: none;
+}
 
-  input {
-    display: none;
-  }
+.viewer {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  touch-action: none;
+}
 
-  button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background: red;
-    color: white;
-    border: none;
-    border-radius: 8px;
-  }
+video {
+  max-width: 100%;
+  max-height: 100%;
+  transform-origin: center;
+  transition: transform 0.05s linear;
+}
 </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <button onclick="document.getElementById('fileInput').click()">
-    📤 Subir vídeo
-  </button>
-  <input type="file" id="fileInput" accept="video/*">
+<div class="top">
+  <button onclick="file.click()">Subir vídeo</button>
+  <input type="file" id="file" accept="video/*">
 </div>
 
-<div class="container">
+<div class="viewer">
   <video id="video" controls></video>
 </div>
 
 <script>
 const video = document.getElementById("video");
-const fileInput = document.getElementById("fileInput");
+const file = document.getElementById("file");
 
 let scale = 1;
 let lastScale = 1;
@@ -74,18 +72,20 @@ let translateY = 0;
 let startX = 0;
 let startY = 0;
 
-fileInput.addEventListener("change", function () {
-  const file = this.files[0];
-  if (file) {
-    const url = URL.createObjectURL(file);
-    video.src = url;
-    video.load();
-    scale = 1;
-    translateX = 0;
-    translateY = 0;
-    video.style.transform = "scale(1) translate(0px, 0px)";
-  }
+file.addEventListener("change", e => {
+  const selected = e.target.files[0];
+  if (!selected) return;
+  video.src = URL.createObjectURL(selected);
+  video.load();
+  resetTransform();
 });
+
+function resetTransform() {
+  scale = 1;
+  translateX = 0;
+  translateY = 0;
+  applyTransform();
+}
 
 function getDistance(touches) {
   const dx = touches[0].clientX - touches[1].clientX;
@@ -93,7 +93,12 @@ function getDistance(touches) {
   return Math.sqrt(dx * dx + dy * dy);
 }
 
-video.addEventListener("touchstart", (e) => {
+function applyTransform() {
+  video.style.transform =
+    `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+}
+
+video.addEventListener("touchstart", e => {
   if (e.touches.length === 2) {
     startDistance = getDistance(e.touches);
     lastScale = scale;
@@ -104,13 +109,13 @@ video.addEventListener("touchstart", (e) => {
   }
 });
 
-video.addEventListener("touchmove", (e) => {
+video.addEventListener("touchmove", e => {
   e.preventDefault();
 
   if (e.touches.length === 2) {
     const distance = getDistance(e.touches);
     scale = lastScale * (distance / startDistance);
-    scale = Math.min(Math.max(1, scale), 4);
+    scale = Math.min(Math.max(1, scale), 5);
   }
 
   if (e.touches.length === 1 && scale > 1) {
@@ -118,8 +123,7 @@ video.addEventListener("touchmove", (e) => {
     translateY = e.touches[0].clientY - startY;
   }
 
-  video.style.transform =
-    `scale(${scale}) translate(${translateX}px, ${translateY}px)`;
+  applyTransform();
 });
 </script>
 
