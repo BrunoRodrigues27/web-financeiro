@@ -3,52 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Meu Player de Vídeo</title>
+<title>Player com Zoom e Movimento</title>
 
 <style>
     body {
         margin: 0;
+        background: black;
         font-family: Arial, sans-serif;
-        background: linear-gradient(135deg, #111, #1e1e1e);
         color: white;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        overflow: hidden;
     }
 
     .container {
         text-align: center;
-        width: 90%;
-        max-width: 900px;
-    }
-
-    h1 {
-        margin-bottom: 20px;
-    }
-
-    input {
-        margin-bottom: 20px;
-        padding: 8px;
-        background: #222;
-        color: white;
-        border: 1px solid #444;
-        border-radius: 6px;
-        cursor: pointer;
+        padding: 10px;
     }
 
     video {
         width: 100%;
         max-height: 70vh;
-        border-radius: 12px;
         background: black;
-        box-shadow: 0 0 20px rgba(0,0,0,0.6);
+        transition: transform 0.05s ease;
+        touch-action: none;
     }
 
-    .info {
+    .fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw !important;
+        height: 100vh !important;
+        object-fit: contain;
+        z-index: 999;
+    }
+
+    button {
+        padding: 10px 20px;
         margin-top: 10px;
-        font-size: 14px;
-        color: #aaa;
+        background: #222;
+        color: white;
+        border: 1px solid #444;
+        border-radius: 6px;
     }
 </style>
 </head>
@@ -56,31 +51,87 @@
 <body>
 
 <div class="container">
-    <h1>🎬 Player Local</h1>
-
-    <input type="file" id="videoInput" accept="video/*">
-
-    <video id="videoPlayer" controls></video>
-
-    <div class="info">
-        O vídeo não é enviado para a internet. Ele roda direto no seu navegador.
-    </div>
+    <h2>🎬 Player Inteligente</h2>
+    <input type="file" id="videoInput" accept="video/*"><br>
+    <video id="videoPlayer" controls></video><br>
+    <button id="fullscreenBtn">Modo Tela Cheia Custom</button>
 </div>
 
 <script>
-    const videoInput = document.getElementById('videoInput');
-    const videoPlayer = document.getElementById('videoPlayer');
+const video = document.getElementById("videoPlayer");
+const input = document.getElementById("videoInput");
+const fullscreenBtn = document.getElementById("fullscreenBtn");
 
-    videoInput.addEventListener('change', function () {
-        const file = this.files[0];
+let scale = 1;
+let posX = 0;
+let posY = 0;
+let startX = 0;
+let startY = 0;
+let initialDistance = null;
 
-        if (file) {
-            const videoURL = URL.createObjectURL(file);
-            videoPlayer.src = videoURL;
-            videoPlayer.load();
-            videoPlayer.play();
-        }
-    });
+input.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        video.src = URL.createObjectURL(file);
+        video.play();
+    }
+});
+
+fullscreenBtn.addEventListener("click", () => {
+    video.classList.toggle("fullscreen");
+    resetTransform();
+});
+
+function resetTransform() {
+    scale = 1;
+    posX = 0;
+    posY = 0;
+    video.style.transform = `translate(0px, 0px) scale(1)`;
+}
+
+function getDistance(touches) {
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+}
+
+video.addEventListener("touchstart", (e) => {
+    if (e.touches.length === 1 && scale > 1) {
+        startX = e.touches[0].clientX - posX;
+        startY = e.touches[0].clientY - posY;
+    }
+
+    if (e.touches.length === 2) {
+        initialDistance = getDistance(e.touches);
+    }
+});
+
+video.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 2) {
+        const currentDistance = getDistance(e.touches);
+        let zoomFactor = currentDistance / initialDistance;
+        scale *= zoomFactor;
+
+        scale = Math.min(Math.max(scale, 1), 4);
+
+        initialDistance = currentDistance;
+        applyTransform();
+    }
+
+    if (e.touches.length === 1 && scale > 1) {
+        posX = e.touches[0].clientX - startX;
+        posY = e.touches[0].clientY - startY;
+        applyTransform();
+    }
+});
+
+video.addEventListener("touchend", () => {
+    initialDistance = null;
+});
+
+function applyTransform() {
+    video.style.transform = `translate(${posX}px, ${posY}px) scale(${scale})`;
+}
 </script>
 
 </body>
